@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Stack(
         children: [BackGround(), Content()],
       ),
@@ -19,14 +21,17 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class Content extends StatefulWidget {
+  const Content({super.key});
+
   @override
   _contentState createState() => _contentState();
 }
 
+// ignore: camel_case_types
 class _contentState extends State<Content> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -59,6 +64,8 @@ class _contentState extends State<Content> {
 }
 
 class Data extends StatefulWidget {
+  const Data({super.key});
+
   @override
   _DataState createState() => _DataState();
 }
@@ -68,11 +75,12 @@ class _DataState extends State<Data> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
+      // ignore: sort_child_properties_last
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Email',
             style: TextStyle(
               color: Colors.black,
@@ -80,18 +88,18 @@ class _DataState extends State<Data> {
               fontSize: 20,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
           TextFormField(
             keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 border: OutlineInputBorder(), hintText: 'Introduce el email'),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
-          Text(
+          const Text(
             'Password',
             style: TextStyle(
               color: Colors.black,
@@ -99,16 +107,16 @@ class _DataState extends State<Data> {
               fontSize: 20,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
           TextFormField(
             obscureText: obs,
             decoration: InputDecoration(
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 hintText: 'Introduce tu contraseña aqui',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.remove_red_eye_outlined),
+                  icon: const Icon(Icons.remove_red_eye_outlined),
                   onPressed: () {
                     setState(() {
                       obs == true ? obs = true : obs = false;
@@ -116,11 +124,11 @@ class _DataState extends State<Data> {
                   },
                 )),
           ),
-          Remember(),
-          SizedBox(
+          const Remember(),
+          const SizedBox(
             height: 30,
           ),
-          Buttons(),
+          const Buttons(),
         ],
       ),
       decoration: BoxDecoration(
@@ -132,6 +140,8 @@ class _DataState extends State<Data> {
 }
 
 class BackGround extends StatelessWidget {
+  const BackGround({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -146,6 +156,8 @@ class BackGround extends StatelessWidget {
 }
 
 class Remember extends StatefulWidget {
+  const Remember({super.key});
+
   @override
   _RememberState createState() => _RememberState();
 }
@@ -164,11 +176,11 @@ class _RememberState extends State<Remember> {
             });
           },
         ),
-        Text('Recordarme'),
-        Spacer(),
+        const Text('Recordarme'),
+        const Spacer(),
         TextButton(
           onPressed: () {},
-          child: Text('¿Olvidaste tu contraseña?'),
+          child: const Text('¿Olvidaste tu contraseña?'),
         ),
       ],
     );
@@ -176,45 +188,47 @@ class _RememberState extends State<Remember> {
 }
 
 class Buttons extends StatelessWidget {
+  const Buttons({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
             onPressed: () {},
-            child: Text(
+            style: const ButtonStyle(
+              backgroundColor:
+                  MaterialStatePropertyAll<Color>(Color(0xff142047)),
+            ),
+            child: const Text(
               'Inicia sesión',
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
-            style: ButtonStyle(
-              backgroundColor:
-                  MaterialStatePropertyAll<Color>(Color(0xff142047)),
-            ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 25,
           width: double.infinity,
         ),
-        Text(
-          '0 entra con: ',
+        const Text(
+          'O regístrate con: ',
           style: TextStyle(color: Colors.grey),
         ),
-        SizedBox(
+        const SizedBox(
           height: 25,
           width: double.infinity,
         ),
-        Container(
+        SizedBox(
           width: double.infinity,
           height: 50,
           child: OutlinedButton(
             onPressed: () {},
-            child: Text(
+            child: const Text(
               'Regístrate con Google',
               style: TextStyle(
                 color: Color(0xff142047),
@@ -224,16 +238,16 @@ class Buttons extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 25,
           width: double.infinity,
         ),
-        Container(
+        SizedBox(
           width: double.infinity,
           height: 50,
           child: OutlinedButton(
             onPressed: () {},
-            child: Text(
+            child: const Text(
               'Regístrate con Facebook',
               style: TextStyle(
                 color: Color(0xff142047),
@@ -243,7 +257,7 @@ class Buttons extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         )
       ],
