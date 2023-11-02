@@ -1,7 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 
+// ignore_for_file: library_private_types_in_public_api
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,6 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [BackGround(), Content()],
       ),
@@ -71,12 +71,15 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
-  bool obs = true;
+  bool isObscure = false;
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      // ignore: sort_child_properties_last
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -100,7 +103,7 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           const Text(
-            'Password',
+            'Contraseña',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -111,7 +114,7 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            obscureText: obs,
+            obscureText: isObscure,
             decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: 'Introduce tu contraseña aqui',
@@ -119,7 +122,7 @@ class _DataState extends State<Data> {
                   icon: const Icon(Icons.remove_red_eye_outlined),
                   onPressed: () {
                     setState(() {
-                      obs == true ? obs = true : obs = false;
+                      isObscure == true ? isObscure = false : isObscure = true;
                     });
                   },
                 )),
@@ -130,10 +133,6 @@ class _DataState extends State<Data> {
           ),
           const Buttons(),
         ],
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
       ),
     );
   }
@@ -163,16 +162,16 @@ class Remember extends StatefulWidget {
 }
 
 class _RememberState extends State<Remember> {
-  bool value = false;
+  bool isChecked = false;
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Checkbox(
-          value: value,
-          onChanged: (value) {
+          value: isChecked,
+          onChanged: (bool? value) {
             setState(() {
-              value == false ? value = true : value = false;
+              isChecked = value!;
             });
           },
         ),
