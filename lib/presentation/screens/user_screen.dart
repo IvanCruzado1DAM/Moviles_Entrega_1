@@ -9,21 +9,41 @@ class UserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BottomNavigationBarExample(),
+      home: UserScreenState(),
     );
   }
 }
 
-class BottomNavigationBarExample extends StatefulWidget {
-  const BottomNavigationBarExample({super.key});
+class UserScreenState extends StatefulWidget {
+  const UserScreenState({super.key});
 
   @override
-  State<BottomNavigationBarExample> createState() =>
-      _BottomNavigationBarExampleState();
+  State<UserScreenState> createState() => _UserScreenState();
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Stack(),
+    );
+  }
 }
 
-class _BottomNavigationBarExampleState
-    extends State<BottomNavigationBarExample> {
+class BackGround extends StatelessWidget {
+  const BackGround({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+        colors: [Colors.blue.shade300, Colors.blue],
+        begin: Alignment.centerRight,
+        end: Alignment.centerLeft,
+      )),
+    );
+  }
+}
+
+class _UserScreenState extends State<UserScreenState> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
