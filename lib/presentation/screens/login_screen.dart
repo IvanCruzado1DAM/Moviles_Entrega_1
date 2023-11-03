@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindcare/presentation/screens/user_screen.dart';
 
 // ignore_for_file: library_private_types_in_public_api
 class LoginScreen extends StatefulWidget {
@@ -31,32 +32,31 @@ class Content extends StatefulWidget {
 class _contentState extends State<Content> {
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'Login',
+          const Text(
+            'MindCare',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 30,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
-          Text(
-            'Bienvenido a tu cuenta',
-            style: TextStyle(
-                color: Colors.white, fontSize: 15, letterSpacing: 1.5),
+          Image.asset(
+            'lib/assets/images/mindCare.png',
+            width: 100,
           ),
-          SizedBox(
-            height: 5,
+          const SizedBox(
+            height: 15,
           ),
-          Data(),
+          const Data(),
         ],
       ),
     );
@@ -197,7 +197,14 @@ class Buttons extends StatelessWidget {
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserScreen(),
+                ),
+              );
+            },
             style: const ButtonStyle(
               backgroundColor:
                   MaterialStatePropertyAll<Color>(Color(0xff142047)),
@@ -215,7 +222,7 @@ class Buttons extends StatelessWidget {
           width: double.infinity,
         ),
         const Text(
-          'O regístrate con: ',
+          '¿No tienes cuenta?',
           style: TextStyle(color: Colors.grey),
         ),
         const SizedBox(
@@ -228,7 +235,7 @@ class Buttons extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () {},
             child: const Text(
-              'Regístrate con Google',
+              'Regístrate',
               style: TextStyle(
                 color: Color(0xff142047),
                 fontWeight: FontWeight.bold,
@@ -240,21 +247,6 @@ class Buttons extends StatelessWidget {
         const SizedBox(
           height: 25,
           width: double.infinity,
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: OutlinedButton(
-            onPressed: () {},
-            child: const Text(
-              'Regístrate con Facebook',
-              style: TextStyle(
-                color: Color(0xff142047),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
         ),
         const SizedBox(
           height: 10,
