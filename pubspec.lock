@@ -193,9 +193,5 @@ packages:
     source: hosted
     version: "0.1.4-beta"
 sdks:
-<<<<<<< Updated upstream
-  dart: ">=3.2.0-194.0.dev <4.0.0"
-  flutter: ">=1.17.0"
-=======
   dart: ">=3.1.2 <4.0.0"
->>>>>>> Stashed changes
+  flutter: ">=1.17.0"

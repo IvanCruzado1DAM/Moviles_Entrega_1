@@ -198,12 +198,21 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(
+              /*Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const UserScreen(),
-                ),
-              );
+                String primerTexto = ;
+                bool isAdmin = primerTexto.contains('admin');
+                var route;
+                if (isAdmin) {
+                  route = MaterialPageRoute(
+                    builder: (context) => const AdminScreen(),
+                  );
+                } else {
+                  route = MaterialPageRoute(
+                    builder: (context) => const UserScreen(),
+                  );
+                }
+              );*/
             },
             style: const ButtonStyle(
               backgroundColor:
