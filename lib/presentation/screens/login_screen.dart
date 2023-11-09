@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mindcare/presentation/screens/user_screen.dart';
+import 'package:mindcare/services/user_services.dart';
 
 // ignore_for_file: library_private_types_in_public_api
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -30,6 +31,7 @@ class Content extends StatefulWidget {
 
 // ignore: camel_case_types
 class _contentState extends State<Content> {
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -71,6 +73,8 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
+  String useremail="";
+  String userpassword="";
   bool isObscure = false;
   @override
   Widget build(BuildContext context) {
@@ -131,7 +135,7 @@ class _DataState extends State<Data> {
           const SizedBox(
             height: 30,
           ),
-          const Buttons(),
+          Buttons(),
         ],
       ),
     );
@@ -187,7 +191,8 @@ class _RememberState extends State<Remember> {
 }
 
 class Buttons extends StatelessWidget {
-  const Buttons({super.key});
+  final UserService userservice = UserService();
+  Buttons({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -198,10 +203,12 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
+              //if(userservice.getUser('1').userType=='u')
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const UserScreen(),
+                    builder: (context) => const UserScreen(),
+
                 ),
               );
             },
