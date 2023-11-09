@@ -48,18 +48,9 @@ class _UserScreenState extends State<UserScreenState> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Pantalla principal',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Explorar',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: Perfil',
-      style: optionStyle,
-    ),
+    MainPanel(),
+    ExplorePanel(),
+    AccountPanel(),
   ];
 
   void _onItemTapped(int index) {
@@ -96,6 +87,48 @@ class _UserScreenState extends State<UserScreenState> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+class MainPanel extends StatelessWidget {
+  const MainPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        'Inicio',
+        style: _UserScreenState.optionStyle,
+      ),
+    );
+  }
+}
+
+class ExplorePanel extends StatelessWidget {
+  const ExplorePanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        'Explorar',
+        style: _UserScreenState.optionStyle,
+      ),
+    );
+  }
+}
+
+class AccountPanel extends StatelessWidget {
+  const AccountPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        'Perfil',
+        style: _UserScreenState.optionStyle,
       ),
     );
   }
