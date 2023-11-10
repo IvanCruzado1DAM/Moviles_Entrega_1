@@ -57,6 +57,111 @@ class UserData {
       this.createdAt,
       this.updatedAt});
 
+  //getters and setters
+  int? getId() {
+    return id;
+  }
+
+  void setId(int? value) {
+    id = value;
+  }
+
+  String? getName() {
+    return name;
+  }
+
+  void setName(String? value) {
+    name = value;
+  }
+
+  String? getEmail() {
+    return email;
+  }
+
+  void setEmail(String? value) {
+    email = value;
+  }
+
+  int? getEmailConfirmed() {
+    return emailConfirmed;
+  }
+
+  void setEmailConfirmed(int? value) {
+    emailConfirmed = value;
+  }
+
+  DateTime? getEmailVerifiedAt() {
+    return emailVerifiedAt;
+  }
+
+  void setEmailVerifiedAt(DateTime? value) {
+    emailVerifiedAt = value;
+  }
+
+  int? getActived() {
+    return actived;
+  }
+
+  void setActived(int? value) {
+    actived = value;
+  }
+
+  String? getType() {
+    return type;
+  }
+
+  void setType(String? value) {
+    type = value;
+  }
+
+  int? getCode() {
+    return code;
+  }
+
+  void setCode(int? value) {
+    code = value;
+  }
+
+  String? getPassword() {
+    return password;
+  }
+
+  void setPassword(String? value) {
+    password = value;
+  }
+
+  int? getRememberToken() {
+    return rememberToken;
+  }
+
+  void setRememberToken(int? value) {
+    rememberToken = value;
+  }
+
+  int? getDeleted() {
+    return deleted;
+  }
+
+  void setDeleted(int? value) {
+    deleted = value;
+  }
+
+  DateTime? getCreatedAt() {
+    return createdAt;
+  }
+
+  void setCreatedAt(DateTime? value) {
+    createdAt = value;
+  }
+
+  DateTime? getUpdatedAt() {
+    return updatedAt;
+  }
+
+  void setUpdatedAt(DateTime? value) {
+    updatedAt = value;
+  }
+
   UserData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
@@ -90,4 +195,5 @@ class UserData {
     data['updated_at'] = updatedAt;
     return data;
   }
+
 }

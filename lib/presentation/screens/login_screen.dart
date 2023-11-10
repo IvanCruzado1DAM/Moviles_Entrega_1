@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:mindcare/models/users.dart';
+import 'package:mindcare/presentation/screens/admin_screen.dart';
 import 'package:mindcare/presentation/screens/user_screen.dart';
 import 'package:mindcare/services/user_services.dart';
 
@@ -102,6 +107,9 @@ class _DataState extends State<Data> {
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), hintText: 'Introduce el email'),
+                onChanged: (value){
+                  useremail=value;
+                }
           ),
           const SizedBox(
             height: 5,
@@ -119,18 +127,22 @@ class _DataState extends State<Data> {
           ),
           TextFormField(
             obscureText: isObscure,
+            keyboardType: TextInputType.visiblePassword,
             decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintText: 'Introduce tu contraseña aqui',
+                border: OutlineInputBorder(), 
+                hintText: 'Introduce tu contraseña aquí',
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.remove_red_eye_outlined),
                   onPressed: () {
                     setState(() {
                       isObscure == true ? isObscure = false : isObscure = true;
                     });
-                  },
+                  },             
                 )),
-          ),
+                onChanged: (value){
+                  userpassword=value;
+                }
+                ),
           const Remember(),
           const SizedBox(
             height: 30,
@@ -203,14 +215,25 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              //if(userservice.getUser('1').userType=='u')
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const UserScreen(),
-
-                ),
-              );
+              try{                  
+                if(UserService.userType=='u'){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UserScreen(),
+                     ),
+                  );
+                }else{
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AdminScreen(),
+                     ),
+                  );
+                }
+              }catch(error) {
+                print('Error al obtener los datos del usuario: $error');
+              }
             },
             style: const ButtonStyle(
               backgroundColor:
