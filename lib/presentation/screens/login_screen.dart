@@ -78,8 +78,8 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
-  String useremail="";
-  String userpassword="";
+  static String useremail="";
+  static String userpassword="";
   bool isObscure = false;
   @override
   Widget build(BuildContext context) {
@@ -215,25 +215,35 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              try{                  
-                if(UserService.userType=='u'){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserScreen(),
-                     ),
-                  );
-                }else{
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AdminScreen(),
-                     ),
-                  );
-                }
-              }catch(error) {
-                print('Error al obtener los datos del usuario: $error');
-              }
+              userservice.login(_DataState.useremail, _DataState.userpassword)
+                .then((_) {
+                  if (_DataState.useremail == '' || _DataState.userpassword == '') {
+                    mostrarAlertDialog(context);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          if(userservice.getType(_DataState.useremail, _DataState.userpassword) == 'a'){
+                            return AdminScreen();
+                          }
+                          if(userservice.getType(_DataState.useremail, _DataState.userpassword) == 'u'){
+                            return UserScreen();
+                          }else{
+                            return Scaffold(
+                              body: Center(
+                                child: Text('USUARIO NO RECONOCIDO'),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  }
+                })
+                .catchError((error) {
+                  print('Error en el inicio de sesión: $error');
+                });
             },
             style: const ButtonStyle(
               backgroundColor:
@@ -245,6 +255,7 @@ class Buttons extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+            
           ),
         ),
         const SizedBox(
@@ -284,4 +295,30 @@ class Buttons extends StatelessWidget {
       ],
     );
   }
+
+  Future<bool> mostrarAlertDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('ERROR'),
+        content: Text('HAS INTRODUCIDO CAMPOS VACÍOS'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Cerrar el AlertDialog y devolver false
+            },
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // Cerrar el AlertDialog y devolver true
+            },
+            child: Text('Aceptar'),
+          ),
+        ],
+      );
+    },
+  ) ?? false; // Si se cierra el AlertDialog sin seleccionar nada, devolver false
+}
 }
