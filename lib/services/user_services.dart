@@ -70,6 +70,7 @@ class UserService extends ChangeNotifier {
       UserService.userEmail = email;
 
       // Guardar el valor de "tipo" en UserService
+      UserService.userType = decoded['data']['type'];
 
       await storage.write(key: 'token', value: decoded['data']['token']);
       await storage.write(key: 'id', value: decoded['data']['id'].toString());
@@ -221,45 +222,4 @@ class UserService extends ChangeNotifier {
       print(decoded.toString());
     }
   }
-
-  Future getType(String email, String password)async {
-    final Map<String, dynamic> authData = {
-      'email': email,
-      'password': password,
-    };
-
-    final url = Uri.http(baseURL, '/public/api/login', {});
-
-    final response = await http.post(url,
-        headers: {
-          'Content-type': 'application/json',
-          'Accept': 'application/json',
-          "Authorization": "Some token",
-        },
-        body: json.encode(authData));
-
-    final Map<String, dynamic> decoded = json.decode(response.body);
-
-    if (decoded['success'] == true) {
-      UserService.userId = decoded['data']['id'].toString();
-      UserService.userEmail = email;
-
-      // Guardar el valor de "tipo" en UserService
-
-      UserService.userType = decoded['data']['type'].toString();
-
-      return UserService.userType;
-    } else {
-      if (decoded['data'] != null &&
-          decoded['data']['error'] == "Email don't confirmed") {
-        return 'Email not confirmed';
-      } else if (decoded['data'] != null &&
-          decoded['data']['error'] == "User don't activated") {
-        return 'User not activated';
-      } else {
-        return decoded['message'];
-      }
-
-    }
-   }
 }

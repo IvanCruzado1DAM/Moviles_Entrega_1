@@ -216,7 +216,7 @@ class Buttons extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () {
               userservice.login(_DataState.useremail, _DataState.userpassword)
-                .then((_) {
+                .then((result) {
                   if (_DataState.useremail == '' || _DataState.userpassword == '') {
                     mostrarAlertDialog(context);
                   } else {
@@ -224,21 +224,53 @@ class Buttons extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          if(userservice.getType(_DataState.useremail, _DataState.userpassword) == 'a'){
+                          print('User Type: ${UserService.userType}');
+                        if (result == 'success') {
+                          print('User Type: ${UserService.userType}');
+                          if (UserService.userType == 'a') {
                             return AdminScreen();
-                          }
-                          if(userservice.getType(_DataState.useremail, _DataState.userpassword) == 'u'){
+                          } else if (UserService.userType == 'u') {
                             return UserScreen();
-                          }else{
+                          } else {
                             return Scaffold(
                               body: Center(
                                 child: Text('USUARIO NO RECONOCIDO'),
                               ),
                             );
                           }
-                        },
-                      ),
+                        } else{
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (result == 'Email not confirmed') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Tu correo no ha sido confirmado.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          } else if (result == 'User not activated') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Tu usuario no está activado.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Email o contraseña incorrectos.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        });
+                        }
+                        // Necesitas retornar algo, incluso si no estás construyendo una pantalla específica.
+                        // Podrías retornar un contenedor vacío o cualquier otro widget.
+                        return Container();                                              
+                        }
+                      )
                     );
+                    
                   }
                 })
                 .catchError((error) {
