@@ -224,19 +224,13 @@ class Buttons extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          print('User Type: ${UserService.userType}');
+                          print(UserService.userType);
                         if (result == 'success') {
-                          print('User Type: ${UserService.userType}');
                           if (UserService.userType == 'a') {
+                            print(UserService.userType);
                             return AdminScreen();
-                          } else if (UserService.userType == 'u') {
+                          }else{
                             return UserScreen();
-                          } else {
-                            return Scaffold(
-                              body: Center(
-                                child: Text('USUARIO NO RECONOCIDO'),
-                              ),
-                            );
                           }
                         } else{
                           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -264,9 +258,7 @@ class Buttons extends StatelessWidget {
                           }
                         });
                         }
-                        // Necesitas retornar algo, incluso si no estás construyendo una pantalla específica.
-                        // Podrías retornar un contenedor vacío o cualquier otro widget.
-                        return Container();                                              
+                        return Container();
                         }
                       )
                     );
