@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mindcare/models/users.dart';
 import 'package:mindcare/presentation/screens/admin_screen.dart';
-import 'package:mindcare/presentation/screens/register_screen.dart';
+import 'package:mindcare/presentation/screens/login_screen.dart';
 import 'package:mindcare/presentation/screens/user_screen.dart';
 import 'package:mindcare/services/user_services.dart';
 
 // ignore_for_file: library_private_types_in_public_api
-class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  RegisterScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -81,7 +81,9 @@ class Data extends StatefulWidget {
 class _DataState extends State<Data> {
   static String useremail="";
   static String userpassword="";
-  bool isObscure = false;
+  static String userpasswordconf="";
+  bool isObscure = true;
+  bool isObscureConf = true;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -93,6 +95,28 @@ class _DataState extends State<Data> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            'Nombre',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), hintText: 'Introduce tu nombre'),
+                onChanged: (value){
+                  useremail=value;
+                }
+          ),
+          const SizedBox(
+            height: 5,
+          ),
           const Text(
             'Email',
             style: TextStyle(
@@ -144,9 +168,41 @@ class _DataState extends State<Data> {
                   userpassword=value;
                 }
                 ),
-          const Remember(),
           const SizedBox(
-            height: 30,
+            height: 5,
+          ),
+          const Text(
+            'Confirmar contraseña',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          TextFormField(
+            obscureText: isObscureConf,
+            keyboardType: TextInputType.visiblePassword,
+             decoration: InputDecoration(
+                border: OutlineInputBorder(), 
+                hintText: 'Introduce tu contraseña de nuevo aquí',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.remove_red_eye_outlined),
+                  onPressed: () {
+                    setState(() {
+                      isObscureConf == true ? isObscure = false : isObscure = true;
+                    });
+                  
+                  },             
+                )),
+                onChanged: (value){
+                    userpasswordconf=value;
+                }
+          ),
+          const SizedBox(
+            height: 25,
           ),
           Buttons(),
         ],
@@ -223,44 +279,7 @@ class Buttons extends StatelessWidget {
                   } else {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                        if (result == 'success') {
-                          if (UserService.userType == 'a') {                       
-                            return AdminScreen();
-                          }else{
-                            return UserScreen();
-                          }
-                        } else{
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (result == 'Email not confirmed') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tu correo no ha sido confirmado.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } else if (result == 'User not activated') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tu usuario no está activado.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Email o contraseña incorrectos.'),
-                                backgroundColor: Colors.red,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        });
-                        }
-                        return LoginScreen();
-                        }
-                      )
+                      MaterialPageRoute(builder: (context) => LoginScreen())                    
                     );
                     
                   }
@@ -274,7 +293,7 @@ class Buttons extends StatelessWidget {
                   MaterialStatePropertyAll<Color>(Color(0xff142047)),
             ),
             child: const Text(
-              'Iniciar sesión',
+              'Registrar',
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -282,45 +301,6 @@ class Buttons extends StatelessWidget {
             
           ),
         ),
-        const SizedBox(
-          height: 25,
-          width: double.infinity,
-        ),
-        const Text(
-          '¿No tienes cuenta?',
-          style: TextStyle(color: Colors.grey),
-        ),
-        const SizedBox(
-          height: 25,
-          width: double.infinity,
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RegisterScreen()),
-            );
-            },
-            child: const Text(
-              'Regístrate',
-              style: TextStyle(
-                color: Color(0xff142047),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 25,
-          width: double.infinity,
-        ),
-        const SizedBox(
-          height: 10,
-        )
       ],
     );
   }
