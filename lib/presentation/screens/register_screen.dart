@@ -79,9 +79,10 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
-  static String useremail="";
-  static String userpassword="";
-  static String userpasswordconf="";
+  String username="";
+  String useremail="";
+  String userpassword="";
+  String userpasswordconf="";
   bool isObscure = true;
   bool isObscureConf = true;
   @override
@@ -111,7 +112,9 @@ class _DataState extends State<Data> {
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), hintText: 'Introduce tu nombre'),
                 onChanged: (value){
-                  useremail=value;
+                  setState(() {
+                    username = value;
+                  });
                 }
           ),
           const SizedBox(
@@ -133,7 +136,9 @@ class _DataState extends State<Data> {
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), hintText: 'Introduce el email'),
                 onChanged: (value){
-                  useremail=value;
+                  setState(() {
+                    useremail = value;
+                  });
                 }
           ),
           const SizedBox(
@@ -165,7 +170,10 @@ class _DataState extends State<Data> {
                   },             
                 )),
                 onChanged: (value){
-                  userpassword=value;
+                  setState(() {
+                    userpassword = value;
+                    print(userpassword);
+                  });
                 }
                 ),
           const SizedBox(
@@ -198,7 +206,9 @@ class _DataState extends State<Data> {
                   },             
                 )),
                 onChanged: (value){
-                    userpasswordconf=value;
+                  setState(() {
+                    userpasswordconf = value;
+                  });
                 }
           ),
           const SizedBox(
@@ -261,6 +271,7 @@ class _RememberState extends State<Remember> {
 
 class Buttons extends StatelessWidget {
   final UserService userservice = UserService();
+  _DataState miDatastate = _DataState();
   Buttons({super.key});
 
   @override
@@ -272,16 +283,35 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              userservice.login(_DataState.useremail, _DataState.userpassword)
+              userservice.login(miDatastate.useremail, miDatastate.userpassword)
                 .then((result) {
-                  if (_DataState.useremail == '' || _DataState.userpassword == '') {
+                  if (miDatastate.useremail=='' || miDatastate.userpassword=='') {
+                    print(miDatastate.useremail);
+                    print(miDatastate.userpassword);
                     mostrarAlertDialog(context);
-                  } else {
+                  } else if (miDatastate.userpassword != miDatastate.userpasswordconf){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Las contraseñas no coinciden.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }else{
+                      userservice.register(
+                        miDatastate.username,
+                        miDatastate.useremail,
+                        miDatastate.userpassword,
+                        miDatastate.userpasswordconf,               
+                      );
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginScreen())                    
+                      MaterialPageRoute(builder: (context) => LoginScreen())
                     );
-                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Usuario registrado con éxito'),
+                        backgroundColor: Colors.green, // Puedes personalizar el color
+                      ));
                   }
                 })
                 .catchError((error) {
