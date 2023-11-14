@@ -82,6 +82,21 @@ class _DataState extends State<Data> {
   static String userpassword = "";
   bool isObscure = true;
   @override
+  void initState() {
+    super.initState();
+    // Limpiar campos al iniciar la pantalla
+    _clearFields();
+  }
+
+  // Método para limpiar los campos
+  void _clearFields() {
+    setState(() {
+      useremail = "";
+      userpassword = "";
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
