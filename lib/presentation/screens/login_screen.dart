@@ -37,7 +37,6 @@ class Content extends StatefulWidget {
 
 // ignore: camel_case_types
 class _contentState extends State<Content> {
-  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -79,9 +78,9 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
-  static String useremail="";
-  static String userpassword="";
-  bool isObscure = false;
+  static String useremail = "";
+  static String userpassword = "";
+  bool isObscure = true;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -105,13 +104,12 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Introduce el email'),
-                onChanged: (value){
-                  useremail=value;
-                }
-          ),
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(), hintText: 'Introduce el email'),
+              onChanged: (value) {
+                useremail = value;
+              }),
           const SizedBox(
             height: 5,
           ),
@@ -127,23 +125,24 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            obscureText: isObscure,
-            keyboardType: TextInputType.visiblePassword,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), 
-                hintText: 'Introduce tu contraseña aquí',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  onPressed: () {
-                    setState(() {
-                      isObscure == true ? isObscure = false : isObscure = true;
-                    });
-                  },             
-                )),
-                onChanged: (value){
-                  userpassword=value;
-                }
-                ),
+              obscureText: isObscure,
+              keyboardType: TextInputType.visiblePassword,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Introduce tu contraseña aquí',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.remove_red_eye_outlined),
+                    onPressed: () {
+                      setState(() {
+                        isObscure == true
+                            ? isObscure = false
+                            : isObscure = true;
+                      });
+                    },
+                  )),
+              onChanged: (value) {
+                userpassword = value;
+              }),
           const Remember(),
           const SizedBox(
             height: 30,
@@ -216,58 +215,53 @@ class Buttons extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              userservice.login(_DataState.useremail, _DataState.userpassword)
-                .then((result) {
-                  if (_DataState.useremail == '' || _DataState.userpassword == '') {
-                    mostrarAlertDialog(context);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                        if (result == 'success') {
-                          if (UserService.userType == 'a') {                       
-                            return AdminScreen();
-                          }else{
-                            return UserScreen();
-                          }
-                        } else{
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (result == 'Email not confirmed') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tu correo no ha sido confirmado.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } else if (result == 'User not activated') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tu usuario no está activado.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Email o contraseña incorrectos.'),
-                                backgroundColor: Colors.red,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        });
+              userservice
+                  .login(_DataState.useremail, _DataState.userpassword)
+                  .then((result) {
+                if (_DataState.useremail == '' ||
+                    _DataState.userpassword == '') {
+                  mostrarAlertDialog(context);
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    if (result == 'success') {
+                      if (UserService.userType == 'a') {
+                        return AdminScreen();
+                      } else {
+                        return UserScreen();
+                      }
+                    } else {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (result == 'Email not confirmed') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Tu correo no ha sido confirmado.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        } else if (result == 'User not activated') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Tu usuario no está activado.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Email o contraseña incorrectos.'),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         }
-                        return LoginScreen();
-                        }
-                      )
-                    );
-                    
-                  }
-                })
-                .catchError((error) {
-                  print('Error en el inicio de sesión: $error');
-                });
+                      });
+                    }
+                    return LoginScreen();
+                  }));
+                }
+              }).catchError((error) {
+                print('Error en el inicio de sesión: $error');
+              });
             },
             style: const ButtonStyle(
               backgroundColor:
@@ -279,7 +273,6 @@ class Buttons extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            
           ),
         ),
         const SizedBox(
@@ -300,9 +293,9 @@ class Buttons extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () {
               Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RegisterScreen()),
-            );
+                context,
+                MaterialPageRoute(builder: (context) => RegisterScreen()),
+              );
             },
             child: const Text(
               'Regístrate',
@@ -326,28 +319,31 @@ class Buttons extends StatelessWidget {
   }
 
   Future<bool> mostrarAlertDialog(BuildContext context) async {
-  return await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('ERROR'),
-        content: const Text('HAS INTRODUCIDO CAMPOS VACÍOS'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cerrar el AlertDialog y devolver false
-            },
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Cerrar el AlertDialog y devolver true
-            },
-            child: const Text('Aceptar'),
-          ),
-        ],
-      );
-    },
-  ) ?? false; // Si se cierra el AlertDialog sin seleccionar nada, devolver false
-}
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('ERROR'),
+              content: const Text('HAS INTRODUCIDO CAMPOS VACÍOS'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(false); // Cerrar el AlertDialog y devolver false
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(true); // Cerrar el AlertDialog y devolver true
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Si se cierra el AlertDialog sin seleccionar nada, devolver false
+  }
 }

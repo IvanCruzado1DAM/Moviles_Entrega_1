@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -37,7 +39,6 @@ class Content extends StatefulWidget {
 
 // ignore: camel_case_types
 class _contentState extends State<Content> {
-  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -72,19 +73,24 @@ class _contentState extends State<Content> {
 }
 
 class Data extends StatefulWidget {
-  const Data({super.key});
+  // ignore: use_super_parameters
+  const Data({Key? key}) : super(key: key);
 
   @override
   _DataState createState() => _DataState();
 }
 
 class _DataState extends State<Data> {
-  String username="";
-  String useremail="";
-  String userpassword="";
-  String userpasswordconf="";
+  String username = "";
+  String useremail = "";
+  String userpassword = "";
+  String userpasswordconf = "";
   bool isObscure = true;
   bool isObscureConf = true;
+  _DataState getInstance() {
+    return this;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -108,15 +114,15 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Introduce tu nombre'),
-                onChanged: (value){
-                  setState(() {
-                    username = value;
-                  });
-                }
-          ),
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Introduce tu nombre'),
+              onChanged: (value) {
+                setState(() {
+                  username = value;
+                });
+              }),
           const SizedBox(
             height: 5,
           ),
@@ -132,15 +138,14 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Introduce el email'),
-                onChanged: (value){
-                  setState(() {
-                    useremail = value;
-                  });
-                }
-          ),
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(), hintText: 'Introduce el email'),
+              onChanged: (value) {
+                setState(() {
+                  useremail = value;
+                });
+              }),
           const SizedBox(
             height: 5,
           ),
@@ -156,26 +161,26 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            obscureText: isObscure,
-            keyboardType: TextInputType.visiblePassword,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), 
-                hintText: 'Introduce tu contraseña aquí',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  onPressed: () {
-                    setState(() {
-                      isObscure == true ? isObscure = false : isObscure = true;
-                    });
-                  },             
-                )),
-                onChanged: (value){
-                  setState(() {
-                    userpassword = value;
-                    print(userpassword);
-                  });
-                }
-                ),
+              obscureText: isObscure,
+              keyboardType: TextInputType.visiblePassword,
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'Introduce tu contraseña aquí',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.remove_red_eye_outlined),
+                    onPressed: () {
+                      setState(() {
+                        isObscure == true
+                            ? isObscure = false
+                            : isObscure = true;
+                      });
+                    },
+                  )),
+              onChanged: (value) {
+                setState(() {
+                  userpassword = value;
+                });
+              }),
           const SizedBox(
             height: 5,
           ),
@@ -191,30 +196,30 @@ class _DataState extends State<Data> {
             height: 5,
           ),
           TextFormField(
-            obscureText: isObscureConf,
-            keyboardType: TextInputType.visiblePassword,
-             decoration: InputDecoration(
-                border: OutlineInputBorder(), 
-                hintText: 'Introduce tu contraseña de nuevo aquí',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  onPressed: () {
-                    setState(() {
-                      isObscureConf == true ? isObscure = false : isObscure = true;
-                    });
-                  
-                  },             
-                )),
-                onChanged: (value){
-                  setState(() {
-                    userpasswordconf = value;
-                  });
-                }
-          ),
+              obscureText: isObscureConf,
+              keyboardType: TextInputType.visiblePassword,
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'Introduce tu contraseña de nuevo aquí',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.remove_red_eye_outlined),
+                    onPressed: () {
+                      setState(() {
+                        isObscureConf == true
+                            ? isObscure = false
+                            : isObscure = true;
+                      });
+                    },
+                  )),
+              onChanged: (value) {
+                setState(() {
+                  userpasswordconf = value;
+                });
+              }),
           const SizedBox(
             height: 25,
           ),
-          Buttons(),
+          Buttons(dataState: this),
         ],
       ),
     );
@@ -270,9 +275,11 @@ class _RememberState extends State<Remember> {
 }
 
 class Buttons extends StatelessWidget {
-  final UserService userservice = UserService();
-  _DataState miDatastate = _DataState();
-  Buttons({super.key});
+  final UserService userService = UserService();
+  final _DataState dataState;
+
+  // ignore: use_super_parameters
+  Buttons({required this.dataState, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -282,41 +289,43 @@ class Buttons extends StatelessWidget {
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
-            onPressed: () {
-              userservice.login(miDatastate.useremail, miDatastate.userpassword)
-                .then((result) {
-                  if (miDatastate.useremail=='' || miDatastate.userpassword=='') {
-                    print(miDatastate.useremail);
-                    print(miDatastate.userpassword);
-                    mostrarAlertDialog(context);
-                  } else if (miDatastate.userpassword != miDatastate.userpasswordconf){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Las contraseñas no coinciden.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }else{
-                      userservice.register(
-                        miDatastate.username,
-                        miDatastate.useremail,
-                        miDatastate.userpassword,
-                        miDatastate.userpasswordconf,               
-                      );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen())
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Usuario registrado con éxito'),
-                        backgroundColor: Colors.green, // Puedes personalizar el color
-                      ));
-                  }
-                })
-                .catchError((error) {
-                  print('Error en el inicio de sesión: $error');
-                });
+            onPressed: () async {
+              try {
+                if (dataState.useremail == '' || dataState.userpassword == '') {
+                  mostrarAlertDialog(context);
+                } else if (dataState.userpassword !=
+                    dataState.userpasswordconf) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Las contraseñas no coinciden.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else {
+                  await userService.register(
+                    dataState.username,
+                    dataState.useremail,
+                    dataState.userpassword,
+                    dataState.userpasswordconf,
+                  );
+                  // ignore: use_build_context_synchronously
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Usuario registrado con éxito'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (error) {
+                // ignore: avoid_print
+                print('Error en el registro: $error');
+                // Agregar manejo de errores más específico según la necesidad
+              }
             },
             style: const ButtonStyle(
               backgroundColor:
@@ -328,7 +337,6 @@ class Buttons extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            
           ),
         ),
       ],
@@ -336,28 +344,31 @@ class Buttons extends StatelessWidget {
   }
 
   Future<bool> mostrarAlertDialog(BuildContext context) async {
-  return await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('ERROR'),
-        content: const Text('HAS INTRODUCIDO CAMPOS VACÍOS'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cerrar el AlertDialog y devolver false
-            },
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Cerrar el AlertDialog y devolver true
-            },
-            child: const Text('Aceptar'),
-          ),
-        ],
-      );
-    },
-  ) ?? false; // Si se cierra el AlertDialog sin seleccionar nada, devolver false
-}
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('ERROR'),
+              content: const Text('HAS INTRODUCIDO CAMPOS VACÍOS'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(false); // Cerrar el AlertDialog y devolver false
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(true); // Cerrar el AlertDialog y devolver true
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Si se cierra el AlertDialog sin seleccionar nada, devolver false
+  }
 }
