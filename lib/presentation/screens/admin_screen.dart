@@ -138,32 +138,62 @@ class _AdminScreenState extends State<AdminScreenState> {
         children: [
           SlidableAction(
             onPressed: (BuildContext context) async {
-              try {
-                UserService userService = UserService();
-                await userService
-                    .postDeleteUser(usuario.id.toString())
-                    .then((result) {
-                  if (result == 'success') {
+              // Muestra el cuadro de diálogo de confirmación
+              bool confirm = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text(
+                        '¿Seguro que quieres eliminar a este usuario?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false); // No confirmado
+                        },
+                        child: const Text('Volver'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true); // Confirmado
+                        },
+                        child: const Text('Confirmar'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              // Si el usuario confirma, procede con la eliminación
+              if (confirm == true) {
+                try {
+                  UserService userService = UserService();
+                  await userService.postDeleteUser(usuario.id.toString()).then(
+                    (result) {
+                      if (result == 'success') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Usuario eliminado con éxito'),
+                          ),
+                        );
+                      } else {
+                        print(usuario.id.toString());
+                      }
+                    },
+                  );
+
+                  // Actualiza la lista de usuarios después de eliminar
+                  _loadUsers();
+                } catch (error) {
+                  print('Error eliminando el usuario: $error');
+
+                  // Verifica si el widget todavía está montado antes de mostrar el SnackBar
+                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Usuario eliminado con éxito')),
+                        content: Text('Error al eliminar el usuario'),
+                      ),
                     );
-                  } else {
-                    print(usuario.id.toString());
                   }
-                });
-
-                // Actualiza la lista de usuarios después de eliminar
-                _loadUsers();
-              } catch (error) {
-                print('Error eliminando el usuario: $error');
-
-                // Verifica si el widget todavía está montado antes de mostrar el SnackBar
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Error al eliminar el usuario')),
-                  );
                 }
               }
             },
