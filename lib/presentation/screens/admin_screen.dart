@@ -230,17 +230,38 @@ class _AdminScreenState extends State<AdminScreenState> {
             label: 'Desactivar',
             // Ajusta el tamaño de la letra
           ),
-          SlidableAction(
+           SlidableAction(
             flex: 2,
-            onPressed: (BuildContext context) {
-              // Lógica para activar el usuario
+            onPressed: (BuildContext context) async {
+              UserService userService = UserService();
+                  await userService.postActivate(usuario.id.toString()).then(
+                    (result) {
+                      if (result == 'success') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Usuario eliminado con éxito'),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No se ha podido activar el usuario'),
+                          ),
+                        );
+                      }
+                    },
+                  );
+
+                  // Actualiza la lista de usuarios después de eliminar
+                  _loadUsers();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Activar ${usuario.getName()!}')),
               );
             },
-            backgroundColor: Colors.green, // Cambiado a verde
+            backgroundColor: Color.fromARGB(255, 47, 255, 0),
             icon: Icons.save,
             label: 'Activar',
+            // Ajusta el tamaño de la letra
           ),
         ],
       ),
