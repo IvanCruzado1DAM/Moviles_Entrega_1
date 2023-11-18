@@ -130,7 +130,7 @@ class _AdminScreenState extends State<AdminScreenState> {
 
   Widget _buildSlidable(UserData usuario, BuildContext context) {
     Color nombreColor = usuario.actived == 1 ? Colors.green : Colors.red;
-
+    String nuevoNombre = '';
     return Slidable(
       key: ValueKey(usuario.id),
       startActionPane: ActionPane(
@@ -202,11 +202,35 @@ class _AdminScreenState extends State<AdminScreenState> {
             label: 'Eliminar',
           ),
           SlidableAction(
-            onPressed: (BuildContext context) {
-              // Lógica para editar el usuario
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Editar ${usuario.getName()!}')),
+            onPressed: (BuildContext context) async {
+                nuevoNombre = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Editar nombre de usuario'),
+                    content: TextField(
+                      controller: TextEditingController(text: usuario.name),
+                      onChanged: (value) {            
+                        nuevoNombre = value;
+                      },
+                    ),
+                    actions: <Widget>[
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(nuevoNombre);
+                        },
+                        child: Text('Guardar'),
+                      ),
+                    ],
+                  );
+                },
               );
+
+              if (nuevoNombre.isNotEmpty) {
+                UserService userService = UserService();
+                await userService.postUpdateUser(usuario.id.toString(), nuevoNombre);
+                _loadUsers();
+              }
             },
             backgroundColor: const Color(0xFF21B7CA),
             icon: Icons.edit,
@@ -217,52 +241,69 @@ class _AdminScreenState extends State<AdminScreenState> {
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [
-          SlidableAction(
-            flex: 2,
-            onPressed: (BuildContext context) {
-              // Lógica para desactivar el usuario
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Desactivar ${usuario.getName()!}')),
-              );
-            },
-            backgroundColor: const Color(0xFFFE4A49),
-            icon: Icons.archive,
-            label: 'Desactivar',
-            // Ajusta el tamaño de la letra
-          ),
-           SlidableAction(
-            flex: 2,
-            onPressed: (BuildContext context) async {
-              UserService userService = UserService();
-                  await userService.postActivate(usuario.id.toString()).then(
-                    (result) {
-                      if (result == 'success') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Usuario eliminado con éxito'),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('No se ha podido activar el usuario'),
-                          ),
-                        );
-                      }
-                    },
-                  );
+          if (usuario.actived == 1)
+            SlidableAction(
+              flex: 2,
+              onPressed: (BuildContext context) async {
+                
+                UserService userService = UserService();
+                    await userService.postDeactivate(usuario.id.toString()).then(
+                      (result) {
+                        if (result == 'success') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Usuario desactivado con éxito'),
+                            ),
+                          );                     
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No se pudo desactivar el usuario'),
+                            ),
+                          );
+                        }
+                      },
+                    );
 
-                  // Actualiza la lista de usuarios después de eliminar
-                  _loadUsers();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Activar ${usuario.getName()!}')),
-              );
-            },
-            backgroundColor: Color.fromARGB(255, 47, 255, 0),
-            icon: Icons.save,
-            label: 'Activar',
-            // Ajusta el tamaño de la letra
-          ),
+                    // Actualiza la lista de usuarios después de eliminar
+                    _loadUsers();
+                  },
+              backgroundColor: const Color(0xFFFE4A49),
+              icon: Icons.archive,
+              label: 'Desactivar',
+              // Ajusta el tamaño de la letra
+              ),
+          if (usuario.actived == 0)
+            SlidableAction(
+              flex: 2,
+              onPressed: (BuildContext context) async {
+                UserService userService = UserService();
+                    await userService.postActivate(usuario.id.toString()).then(
+                      (result) {
+                        if (result == 'success') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Usuario activado con éxito'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No se ha podido activar el usuario'),
+                            ),
+                          );
+                        }
+                      },
+                    );
+
+                    // Actualiza la lista de usuarios después de eliminar
+                    _loadUsers();
+              },
+              backgroundColor: const Color.fromARGB(255, 47, 255, 0),
+              icon: Icons.save,
+              label: 'Activar',
+              // Ajusta el tamaño de la letra
+            ),
         ],
       ),
       child: ListTile(

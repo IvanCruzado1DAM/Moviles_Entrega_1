@@ -148,7 +148,7 @@ class UserService extends ChangeNotifier {
   }
 
   Future postActivate(String id) async {
-    final url = Uri.http(baseURL, '/public/api/activate', {'user_id': id});
+    final url = Uri.http(baseURL, '/public/api/activate', {'id': '$id'});
     String? token = await readToken();
     isLoading = true;
     notifyListeners();
@@ -160,21 +160,38 @@ class UserService extends ChangeNotifier {
         "Authorization": "Bearer $token",
       },
     );
+    final Map<String, dynamic> decodeResp = json.decode(resp.body);
+
+    if (decodeResp['success'] == true) {
+      print("Delete successful");
+      return 'success'; // Aquí se retorna 'success' si la desactivación fue exitosa.
+    } else {
+      print("Delete failed: ${decodeResp['message']}");
+      return decodeResp['message']; // Se retorna el mensaje si la desactivación falla.
+    }
   }
 
   Future postDeactivate(String id) async {
-    final url = Uri.http(baseURL, '/public/api/deactivate', {'user_id': id});
+    final url = Uri.http(baseURL, '/public/api/deactivate', {'id': '$id'});
     String? token = await readToken();
     isLoading = true;
     notifyListeners();
     final resp = await http.post(
       url,
       headers: {
-        'Content-type': 'application/json',
         'Accept': 'application/json',
         "Authorization": "Bearer $token",
       },
     );
+    final Map<String, dynamic> decodeResp = json.decode(resp.body);
+
+    if (decodeResp['success'] == true) {
+      print("Delete successful");
+      return 'success'; // Aquí se retorna 'success' si la desactivación fue exitosa.
+    } else {
+      print("Delete failed: ${decodeResp['message']}");
+      return decodeResp['message']; // Se retorna el mensaje si la desactivación falla.
+    }
   }
 
   Future postDeleteUser(String id) async {
@@ -203,10 +220,10 @@ class UserService extends ChangeNotifier {
     String name,
   ) async {
     final Map<String, dynamic> updateData = {
-      'user_id': id,
+      'id': id,
       'name': name,
     };
-    final url = Uri.http(baseURL, '/public/api/user/updateUser/$id');
+    final url = Uri.http(baseURL, '/public/api/updateUser', {'id': '$id'});
     String? token = await readToken();
     isLoading = true;
     notifyListeners();
