@@ -7,6 +7,7 @@ import 'package:mindcare/presentation/screens/admin_screen.dart';
 import 'package:mindcare/presentation/screens/register_screen.dart';
 import 'package:mindcare/presentation/screens/user_screen.dart';
 import 'package:mindcare/services/user_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore_for_file: library_private_types_in_public_api
 class LoginScreen extends StatefulWidget {
@@ -86,6 +87,8 @@ class _DataState extends State<Data> {
     super.initState();
     // Limpiar campos al iniciar la pantalla
     _clearFields();
+
+    _loadRememberedData();
   }
 
   // Método para limpiar los campos
@@ -93,6 +96,17 @@ class _DataState extends State<Data> {
     setState(() {
       useremail = "";
       userpassword = "";
+    });
+  }
+
+  _loadRememberedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      bool isChecked = prefs.getBool('rememberMe') ?? false;
+      if (isChecked) {
+        useremail = prefs.getString('rememberedEmail') ?? "";
+        userpassword = prefs.getString('rememberedPassword') ?? "";
+      }
     });
   }
 
@@ -143,7 +157,7 @@ class _DataState extends State<Data> {
               obscureText: isObscure,
               keyboardType: TextInputType.visiblePassword,
               decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   hintText: 'Introduce tu contraseña aquí',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.remove_red_eye_outlined),
@@ -166,6 +180,12 @@ class _DataState extends State<Data> {
         ],
       ),
     );
+  }
+
+  _saveRememberedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('rememberedEmail', useremail);
+    prefs.setString('rememberedPassword', userpassword);
   }
 }
 
@@ -194,6 +214,7 @@ class Remember extends StatefulWidget {
 
 class _RememberState extends State<Remember> {
   bool isChecked = false;
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -206,7 +227,14 @@ class _RememberState extends State<Remember> {
             });
           },
         ),
-        const Text('Recordarme'),
+        const SizedBox(width: 7.0), // Espaciado entre el checkbox y el texto
+        const Expanded(
+          child: Text(
+            'Recordarme',
+            style:
+                TextStyle(fontSize: 13.0), // Puedes ajustar el tamaño del texto
+          ),
+        ),
         const Spacer(),
         TextButton(
           onPressed: () {},
@@ -240,9 +268,9 @@ class Buttons extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     if (result == 'success') {
                       if (UserService.userType == 'a') {
-                        return AdminScreen();
+                        return const AdminScreen();
                       } else {
-                        return UserScreen();
+                        return const UserScreen();
                       }
                     } else {
                       WidgetsBinding.instance.addPostFrameCallback((_) {

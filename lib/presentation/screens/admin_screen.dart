@@ -1,5 +1,6 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mindcare/models/users.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
@@ -68,9 +69,8 @@ class _AdminScreenState extends State<AdminScreenState> {
       setState(() {
         _usuarios = usuarios;
       });
-    } catch (error) {
-      print('Error cargando usuarios: $error');
-    }
+      // ignore: empty_catches
+    } catch (error) {}
   }
 
   @override
@@ -78,7 +78,7 @@ class _AdminScreenState extends State<AdminScreenState> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue.shade300,
-        title: const Text('Lista Usuarios'),
+        title: _selectedIndex == 0 ? const Text('Lista Usuarios') : null,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -175,8 +175,6 @@ class _AdminScreenState extends State<AdminScreenState> {
                             content: Text('Usuario eliminado con éxito'),
                           ),
                         );
-                      } else {
-                        print(usuario.id.toString());
                       }
                     },
                   );
@@ -184,8 +182,6 @@ class _AdminScreenState extends State<AdminScreenState> {
                   // Actualiza la lista de usuarios después de eliminar
                   _loadUsers();
                 } catch (error) {
-                  print('Error eliminando el usuario: $error');
-
                   // Verifica si el widget todavía está montado antes de mostrar el SnackBar
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -203,14 +199,14 @@ class _AdminScreenState extends State<AdminScreenState> {
           ),
           SlidableAction(
             onPressed: (BuildContext context) async {
-                nuevoNombre = await showDialog(
+              nuevoNombre = await showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Editar nombre de usuario'),
+                    title: const Text('Editar nombre de usuario'),
                     content: TextField(
                       controller: TextEditingController(text: usuario.name),
-                      onChanged: (value) {            
+                      onChanged: (value) {
                         nuevoNombre = value;
                       },
                     ),
@@ -219,7 +215,7 @@ class _AdminScreenState extends State<AdminScreenState> {
                         onPressed: () {
                           Navigator.of(context).pop(nuevoNombre);
                         },
-                        child: Text('Guardar'),
+                        child: const Text('Guardar'),
                       ),
                     ],
                   );
@@ -228,7 +224,8 @@ class _AdminScreenState extends State<AdminScreenState> {
 
               if (nuevoNombre.isNotEmpty) {
                 UserService userService = UserService();
-                await userService.postUpdateUser(usuario.id.toString(), nuevoNombre);
+                await userService.postUpdateUser(
+                    usuario.id.toString(), nuevoNombre);
                 _loadUsers();
               }
             },
@@ -245,59 +242,58 @@ class _AdminScreenState extends State<AdminScreenState> {
             SlidableAction(
               flex: 2,
               onPressed: (BuildContext context) async {
-                
                 UserService userService = UserService();
-                    await userService.postDeactivate(usuario.id.toString()).then(
-                      (result) {
-                        if (result == 'success') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Usuario desactivado con éxito'),
-                            ),
-                          );                     
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('No se pudo desactivar el usuario'),
-                            ),
-                          );
-                        }
-                      },
-                    );
-
-                    // Actualiza la lista de usuarios después de eliminar
-                    _loadUsers();
+                await userService.postDeactivate(usuario.id.toString()).then(
+                  (result) {
+                    if (result == 'success') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Usuario desactivado con éxito'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('No se pudo desactivar el usuario'),
+                        ),
+                      );
+                    }
                   },
+                );
+
+                // Actualiza la lista de usuarios después de eliminar
+                _loadUsers();
+              },
               backgroundColor: const Color(0xFFFE4A49),
               icon: Icons.archive,
               label: 'Desactivar',
               // Ajusta el tamaño de la letra
-              ),
+            ),
           if (usuario.actived == 0)
             SlidableAction(
               flex: 2,
               onPressed: (BuildContext context) async {
                 UserService userService = UserService();
-                    await userService.postActivate(usuario.id.toString()).then(
-                      (result) {
-                        if (result == 'success') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Usuario activado con éxito'),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('No se ha podido activar el usuario'),
-                            ),
-                          );
-                        }
-                      },
-                    );
+                await userService.postActivate(usuario.id.toString()).then(
+                  (result) {
+                    if (result == 'success') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Usuario activado con éxito'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('No se ha podido activar el usuario'),
+                        ),
+                      );
+                    }
+                  },
+                );
 
-                    // Actualiza la lista de usuarios después de eliminar
-                    _loadUsers();
+                // Actualiza la lista de usuarios después de eliminar
+                _loadUsers();
               },
               backgroundColor: const Color.fromARGB(255, 47, 255, 0),
               icon: Icons.save,
