@@ -1,7 +1,12 @@
 // ignore_for_file: use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:mindcare/models/elements.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
+import 'package:mindcare/services/element_srervices.dart';
+import 'package:mindcare/widgets/emotion_widget.dart';
+import 'package:mindcare/widgets/event_widget.dart';
+import 'package:mindcare/widgets/mood_widget.dart';
 
 void main() => runApp(const UserScreen());
 
@@ -43,15 +48,31 @@ class BackGround extends StatelessWidget {
 
 class __UserScreenState extends State<_UserScreenState> {
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    MainPanel(),
-    ExplorePanel(),
-    AccountPanel(),
-  ];
+  ElementService _elementService = ElementService();
+  List<ElementData> _loadedElements = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadElements();
+  }
+
+  Future<void> _loadElements() async {
+    try {
+      List<ElementData> elements = await _elementService.getElements();
+      setState(() {
+        _loadedElements = elements;
+      });
+    } catch (error) {
+      // Manejar el error de carga de elementos
+      print('Error al cargar elementos: $error');
+    }
+  }
+  
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      // Aquí podrías añadir lógica adicional según el índice seleccionado
     });
   }
 
@@ -76,11 +97,29 @@ class __UserScreenState extends State<_UserScreenState> {
                 : const Text('Perfil'),
       ),
       body: Stack(
-        children: [
-          const BackGround(),
-          Center(
-            child: _widgetOptions.elementAt(_selectedIndex),
+      children: [
+        const BackGround(),
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                itemCount: _loadedElements.length,
+                itemBuilder: (context, index) {
+                  // Muestra cada elemento en un ListTile
+                  return ListTile(
+                    title: Text(_loadedElements[index].name),
+                    subtitle: Text(_loadedElements[index].description),
+                    // Otros datos que quieras mostrar en tu lista
+                  );
+                },
+                ),
+              ),
+            ],
           ),
+        ),
           if (_selectedIndex == 0)
             const Positioned(
               top: 16.0,
