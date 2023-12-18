@@ -68,11 +68,15 @@ class ElementService extends ChangeNotifier {
   }
 
   Future<List<ElementData>> getElements() async {
+    final String userId = UserService.userId;
     final String token = await readToken();
-    final Uri url = Uri.http(
-        baseURL, '/public/api/elements', {"id": UserService.userId.toString()});
+    final Map<String, String> queryParams = {
+      'id': userId,
+    };
+    final Uri url = Uri.https(
+        baseURL, '/public/api/elements', queryParams);
 
-    try {
+    
       isLoading = true;
       notifyListeners();
 
@@ -83,35 +87,26 @@ class ElementService extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      if (resp.statusCode == 200) {
-        elements
-            .clear(); // Limpiamos la lista antes de agregar nuevos elementos
-
         final Map<String, dynamic> decodedData = json.decode(resp.body);
-        var elementData = ElementData.fromJson(decodedData);
-
-        // Verificar si elementData.data es null o está vacío antes de agregar elementos
-        if (elementData.data != null && elementData.data!.isNotEmpty) {
-          elements
-              .clear(); // Limpiamos la lista antes de agregar nuevos elementos
-          elements.addAll(elementData.data!); // Agregamos todos los elementos
-        } else {
-          print('El campo "data" está vacío o es nulo.');
-        }
-
+        if(decodedData['success']==true){
+          for (var data in decodedData['data']) {
+            ElementData elementData = ElementData(
+              id: data['id'],
+              type: data['type'] ?? '',
+              name: data['name'] ?? '',
+              description: data['description'] ?? '',
+              image: data['image'] ?? '',
+              date: data['date'] != null ? DateTime.parse(data['date']) : null,
+              createdAt: DateTime.parse(data['created_at']),
+            );
+            elements.add(elementData);
+          }
+        }  
         isLoading = false;
         notifyListeners();
-        return elements;
-      } else {
-        // Manejar errores de estado de la solicitud
-        print('Error en la solicitud: ${resp.statusCode}');
-        throw Exception('Error en la solicitud: ${resp.statusCode}');
-      }
-    } catch (error) {
-      // Manejar otros tipos de errores, como JSON no válido, etc.
-      print('Error: $error');
-      throw Exception('Error: $error');
+        print('aaaaaaaa');
+        print(elements);
+        return elements;  
     }
   }
-}
+

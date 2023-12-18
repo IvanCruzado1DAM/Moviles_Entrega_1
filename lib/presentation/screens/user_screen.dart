@@ -37,7 +37,7 @@ class BackGround extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color.fromARGB(255, 254, 254, 254), Colors.white],
+          colors: [Colors.white,Colors.white],
           begin: Alignment.centerRight,
           end: Alignment.centerLeft,
         ),
@@ -80,7 +80,8 @@ class __UserScreenState extends State<_UserScreenState> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade300,
+        backgroundColor: Colors.blue,
+        
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -106,54 +107,90 @@ class __UserScreenState extends State<_UserScreenState> {
             children: [
               Expanded(
                 child: ListView.builder(
-                itemCount: _loadedElements.length,
-                itemBuilder: (context, index) {
-                  // Muestra cada elemento en un ListTile
-                  return ListTile(
-                    title: Text(_loadedElements[index].name),
-                    subtitle: Text(_loadedElements[index].description),
-                    // Otros datos que quieras mostrar en tu lista
-                  );
-                },
+                  itemCount: _loadedElements.length,
+                  itemBuilder: (context, index) {
+
+                    if (_loadedElements[index].type == 'mood') {
+                      MoodWidget moodWidget = MoodWidget(
+                        texto1: _loadedElements[index].description,
+                        texto2: "Fecha: " + _loadedElements[index].date.toString(),
+                        img1: _loadedElements[index].image,
+                      );
+                      return Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          moodWidget,
+                        ],
+                      );
+                    } else if (_loadedElements[index].type == 'event') {
+                      EventWidget eventWidget = EventWidget(
+                        text1: _loadedElements[index].description,
+                        text2: "Fecha: " + _loadedElements[index].date.toString(),
+                        imageUrl: _loadedElements[index].image,
+                      );
+                      return Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          eventWidget,                        
+                        ],
+                      );
+                    } else if (_loadedElements[index].type == 'emotion') {
+                      EmotionWidget emotionWidget = EmotionWidget(
+                        texto1: _loadedElements[index].name,
+                        texto2: "Fecha: " + _loadedElements[index].createdAt.toString(),
+                        img1: _loadedElements[index].image,
+                      );
+                      return Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          emotionWidget,
+                        ],
+                      );
+                    } else {
+                      return SizedBox(); // O algún otro widget por defecto
+                    }
+
+                  },
                 ),
               ),
             ],
           ),
         ),
-          if (_selectedIndex == 0)
-            const Positioned(
-              top: 16.0,
-              left: 16.0,
-              child: Text(
-                'Listado de tarjetas',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Diario',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Explorar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_rounded),
-            label: 'Perfil',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+    backgroundColor: Color.fromARGB(255, 86, 189, 227), // Fondo negro
+    items: const <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: Icon(Icons.menu_book),
+        label: 'Diario',
       ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: 'Explorar',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.account_circle_rounded),
+        label: 'Perfil',
+      ),
+    ],
+    currentIndex: _selectedIndex,
+    selectedItemColor: Colors.amber[800], 
+    unselectedItemColor: Colors.red, 
+    onTap: _onItemTapped,
+    selectedLabelStyle: const TextStyle(
+      fontFamily: 'Arial',
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+    unselectedLabelStyle: const TextStyle(
+    fontFamily: 'Arial',
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  ),
+  ),
+
     );
   }
 }
