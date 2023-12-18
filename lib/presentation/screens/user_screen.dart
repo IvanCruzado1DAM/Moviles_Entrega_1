@@ -37,7 +37,7 @@ class BackGround extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white,Colors.white],
+          colors: [Colors.white, Colors.white],
           begin: Alignment.centerRight,
           end: Alignment.centerLeft,
         ),
@@ -68,7 +68,7 @@ class __UserScreenState extends State<_UserScreenState> {
       print('Error al cargar elementos: $error');
     }
   }
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -81,7 +81,6 @@ class __UserScreenState extends State<_UserScreenState> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -98,99 +97,99 @@ class __UserScreenState extends State<_UserScreenState> {
                 : const Text('Perfil'),
       ),
       body: Stack(
-      children: [
-        const BackGround(),
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _loadedElements.length,
-                  itemBuilder: (context, index) {
-
-                    if (_loadedElements[index].type == 'mood') {
-                      MoodWidget moodWidget = MoodWidget(
-                        texto1: _loadedElements[index].description,
-                        texto2: "Fecha: " + _loadedElements[index].date.toString(),
-                        img1: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          moodWidget,
-                        ],
-                      );
-                    } else if (_loadedElements[index].type == 'event') {
-                      EventWidget eventWidget = EventWidget(
-                        text1: _loadedElements[index].description,
-                        text2: "Fecha: " + _loadedElements[index].date.toString(),
-                        imageUrl: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          eventWidget,                        
-                        ],
-                      );
-                    } else if (_loadedElements[index].type == 'emotion') {
-                      EmotionWidget emotionWidget = EmotionWidget(
-                        texto1: _loadedElements[index].name,
-                        texto2: "Fecha: " + _loadedElements[index].createdAt.toString(),
-                        img1: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          emotionWidget,
-                        ],
-                      );
-                    } else {
-                      return SizedBox(); // O algún otro widget por defecto
-                    }
-
-                  },
+        children: [
+          const BackGround(),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _loadedElements.length,
+                    itemBuilder: (context, index) {
+                      if (_loadedElements[index].type == 'mood') {
+                        MoodWidget moodWidget = MoodWidget(
+                          texto1: _loadedElements[index].description,
+                          texto2: "Fecha: " +
+                              _loadedElements[index].date.toString(),
+                          img1: _loadedElements[index].image,
+                        );
+                        return Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            moodWidget,
+                          ],
+                        );
+                      } else if (_loadedElements[index].type == 'event') {
+                        EventWidget eventWidget = EventWidget(
+                          text1: _loadedElements[index].description,
+                          text2: "Fecha: " +
+                              _loadedElements[index].date.toString(),
+                          imageUrl: _loadedElements[index].image,
+                        );
+                        return Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            eventWidget,
+                          ],
+                        );
+                      } else if (_loadedElements[index].type == 'emotion') {
+                        EmotionWidget emotionWidget = EmotionWidget(
+                          texto1: _loadedElements[index].name,
+                          texto2: "Fecha: " +
+                              _loadedElements[index].createdAt.toString(),
+                          img1: _loadedElements[index].image,
+                        );
+                        return Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            emotionWidget,
+                          ],
+                        );
+                      } else {
+                        return const SizedBox(); // O algún otro widget por defecto
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-          
+          const MainPanel(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-    backgroundColor: Color.fromARGB(255, 86, 189, 227), // Fondo negro
-    items: const <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(Icons.menu_book),
-        label: 'Diario',
+        backgroundColor: const Color.fromARGB(255, 86, 189, 227), // Fondo negro
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'Diario',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Explorar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Perfil',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.red,
+        onTap: _onItemTapped,
+        selectedLabelStyle: const TextStyle(
+          fontFamily: 'Arial',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Arial',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.search),
-        label: 'Explorar',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.account_circle_rounded),
-        label: 'Perfil',
-      ),
-    ],
-    currentIndex: _selectedIndex,
-    selectedItemColor: Colors.amber[800], 
-    unselectedItemColor: Colors.red, 
-    onTap: _onItemTapped,
-    selectedLabelStyle: const TextStyle(
-      fontFamily: 'Arial',
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
-    unselectedLabelStyle: const TextStyle(
-    fontFamily: 'Arial',
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  ),
-  ),
-
     );
   }
 }
@@ -211,6 +210,10 @@ class MainPanel extends StatelessWidget {
               _mostrarOpciones(context);
             },
             child: const Icon(Icons.add),
+            backgroundColor:
+                Colors.blue, // Puedes ajustar el color según tu diseño
+            mini: false, // Establece a true si prefieres un tamaño más pequeño
+            heroTag: null,
           ),
         ),
       ],
