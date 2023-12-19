@@ -12,11 +12,12 @@ class MoodRegisterScreen extends StatefulWidget {
 }
 
 class _MoodRegisterScreenState extends State<MoodRegisterScreen> {
-  int _selectedIndex = 0;
-  int mood_id = 0;
+  // ignore: non_constant_identifier_names
+  int? mood_id;
   final ElementService _elementService = ElementService();
-  List<ElementData> _loadedElements = [];
-  List<String> finalImages = [];
+  // ignore: unused_field
+  late List<ElementData> _loadedElements;
+  String? _selectedDescription;
 
   @override
   void initState() {
@@ -26,10 +27,14 @@ class _MoodRegisterScreenState extends State<MoodRegisterScreen> {
 
   Future<void> _loadElements() async {
     try {
-      List<ElementData> elements = await _elementService.getMoods();
-      setState(() {
-        _loadedElements = elements;
-      });
+      dynamic response = await _elementService.getMoods();
+      if (response != null && response is List) {
+        List<ElementData> elements =
+            List.from(response.whereType<Map<String, dynamic>>());
+        setState(() {
+          _loadedElements = elements;
+        });
+      } else {}
       // ignore: empty_catches
     } catch (error) {}
   }
@@ -40,96 +45,105 @@ class _MoodRegisterScreenState extends State<MoodRegisterScreen> {
       appBar: AppBar(
         title: const Text('Registrar estado de ánimo'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SizedBox(
-          width: 500,
-          height: 600,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (ElementData image in _loadedElements)
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black)),
-                      width: 200,
-                      height: 250,
-                      margin: EdgeInsets.all(10),
-                      child: SelectTableImage(
-                          isSelected: _selectedIndex == mood_id,
-                          imageAsset: image.image,
-                          onTap: (selectedIndex) {
-                            setState(() {
-                              print(_selectedIndex);
-                              if (image.description == 'Estoy contento') {
-                                mood_id = 2;
-                              } else {
-                                mood_id = 1;
-                              }
-                              _selectedIndex = image.id;
-                            });
-                          }),
+              DropdownButton<String>(
+                hint: const Text('Selecciona un estado de ánimo'),
+                value: _selectedDescription,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedDescription = newValue;
+                    mood_id = _getMoodId(_selectedDescription);
+                  });
+                },
+                items: ['Estoy contento', 'Estoy muy enfadado']
+                    .map<DropdownMenuItem<String>>(
+                      (String value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
                     )
-                ],
+                    .toList(),
               ),
+              const SizedBox(height: 20),
+              if (_selectedDescription != null)
+                Image.network(
+                  _getImageUrl(_selectedDescription),
+                  width: 200,
+                  height: 250,
+                ),
+              const SizedBox(height: 20),
               ElevatedButton(
-                  onPressed: () async {
-                    DateTime now = DateTime.now();
-                    DateTime date = DateTime(now.year, now.month, now.day);
-                    String result = await ElementService().newElement(
-                      UserService.userId,
-                      'u',
-                      'mood',
-                      mood_id: 1,
-                      date.toString(),
-                    );
+                onPressed: _selectedDescription != null && mood_id != null
+                    ? () async {
+                        DateTime now = DateTime.now();
+                        DateTime date = DateTime(now.year, now.month, now.day);
+                        try {
+                          String result = await ElementService().newElement(
+                            UserService.userId,
+                            'u',
+                            'mood',
+                            mood_id: mood_id!,
+                            date.toString(),
+                          );
 
-                    if (result == 'success') {
-                      // ignore: use_build_context_synchronously
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UserScreen()),
-                      );
-                    } else {
-                      print(result);
-                      const Text('Hubo un error al añadir un estado de ánimo');
-                    }
-                  },
-                  child: const Text('Añadir Estado de ánimo'))
+                          if (result == 'success') {
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Estado de ánimo añadido con éxito'),
+                              ),
+                            );
+                            // ignore: use_build_context_synchronously
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const UserScreen(),
+                              ),
+                            );
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Hubo un error al añadir un estado de ánimo',
+                                ),
+                              ),
+                            );
+                          }
+                          // ignore: empty_catches
+                        } catch (error) {}
+                      }
+                    : null,
+                child: const Text('Añadir Estado de ánimo'),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-class SelectTableImage extends StatelessWidget {
-  const SelectTableImage(
-      {super.key,
-      required this.isSelected,
-      required this.imageAsset,
-      required this.onTap});
-  final bool isSelected;
-  final String imageAsset;
-  final void Function(String imageAsset) onTap;
+  int? _getMoodId(String? description) {
+    if (description == 'Estoy contento') {
+      return 2;
+    } else if (description == 'Estoy muy enfadado') {
+      return 1;
+    }
+    return null;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => onTap(imageAsset),
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                  width: 3,
-                  color: isSelected ? Colors.green : Colors.transparent)),
-          child: Image.network(imageAsset),
-        ),
-      ),
-    );
+  String _getImageUrl(String? description) {
+    if (description == 'Estoy contento') {
+      return 'https://mindcare.allsites.es/public/images/alegria.png';
+    } else if (description == 'Estoy muy enfadado') {
+      return 'https://mindcare.allsites.es/public/images/ira.png';
+    }
+    return '';
   }
 }

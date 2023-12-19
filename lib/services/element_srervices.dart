@@ -15,7 +15,7 @@ class ElementService extends ChangeNotifier {
   final String baseURL = 'mindcare.allsites.es';
   final storage = const FlutterSecureStorage();
   final List<ElementData> elements = [];
-   final List<ElementData> emotions = [];
+  final List<ElementData> emotions = [];
 
   bool isLoading = true;
 
@@ -63,7 +63,6 @@ class ElementService extends ChangeNotifier {
       ElementService.type = decoded['data']['type'].toString();
       return 'success';
     } else {
-      print(decoded);
       return 'error';
     }
   }
@@ -73,9 +72,6 @@ class ElementService extends ChangeNotifier {
   }
 
   Future<List<ElementData>> getMoods() async {
-    // int contContento = 0;
-    // int contEnfado = 0;
-    //final String userId = UserService.userId;
     final String token = await readToken();
 
     final Uri url = Uri.https(baseURL, '/public/api/moods');
@@ -104,16 +100,6 @@ class ElementService extends ChangeNotifier {
             createdAt: DateTime.parse(data['created_at']),
           );
           elements.add(elementData);
-          // if (data['description'] ==
-          //         'Estoy muy enfadadooooooooooooooooooooooo' &&
-          //     contEnfado == 0) {
-          //   elements.add(elementData);
-          //   contEnfado++;
-          // } else if (data['description'] == 'Estoy contento' &&
-          //     contContento == 0) {
-          //   elements.add(elementData);
-          //   contContento++;
-          // }
         }
       }
     }
@@ -126,7 +112,6 @@ class ElementService extends ChangeNotifier {
     final String token = await readToken();
 
     final Uri url = Uri.https(baseURL, '/public/api/emotions');
-    print(url);
 
     isLoading = true;
     notifyListeners();
@@ -141,13 +126,13 @@ class ElementService extends ChangeNotifier {
     final Map<String, dynamic> decodedData = json.decode(resp.body);
     if (decodedData['success'] == true) {
       for (var data in decodedData['data']) {
-          ElementData elementData = ElementData(
-            name: data['name'],
-            description: data['description'],  
-            id: data['id'],
-            image: data['image'] ?? '',       
-          );
-          emotions.add(elementData);            
+        ElementData elementData = ElementData(
+          name: data['name'],
+          description: data['description'],
+          id: data['id'],
+          image: data['image'] ?? '',
+        );
+        emotions.add(elementData);
       }
     }
     isLoading = false;
