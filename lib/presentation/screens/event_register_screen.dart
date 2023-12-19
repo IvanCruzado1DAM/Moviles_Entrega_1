@@ -15,6 +15,7 @@ class EventRegisterScreen extends StatefulWidget {
 class _EventRegisterScreenState extends State<EventRegisterScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+  
 
   @override
   Widget build(BuildContext context) {

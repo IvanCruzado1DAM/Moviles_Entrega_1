@@ -15,6 +15,7 @@ class ElementService extends ChangeNotifier {
   final String baseURL = 'mindcare.allsites.es';
   final storage = const FlutterSecureStorage();
   final List<ElementData> elements = [];
+   final List<ElementData> emotions = [];
 
   bool isLoading = true;
 
@@ -118,6 +119,46 @@ class ElementService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return elements;
+  }
+
+  Future<List<ElementData>> getEmotions() async {
+    final String token = await readToken();
+
+    final Uri url = Uri.https(baseURL, '/public/api/emotions');
+
+    isLoading = true;
+    notifyListeners();
+
+    final http.Response resp = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+    if (decodedData['success'] == true) {
+      for (var data in decodedData['data']) {
+        if (data['type'] == 'emotion') {
+          ElementData elementData = ElementData(
+            id: data['id'],
+            type: data['type'] ?? '',
+            name: data['name'] ?? '',
+            description: data['description'] ?? '',
+            image: data['image'] ?? '',
+            date: data['date'] != null ? DateTime.parse(data['date']) : null,
+            createdAt: DateTime.parse(data['created_at']),
+          );
+          emotions.add(elementData);
+         
+        }
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    
+    print(emotions);
+    return emotions;
   }
 
   Future<List<ElementData>> getElements() async {

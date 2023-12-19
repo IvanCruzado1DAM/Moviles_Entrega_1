@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindcare/models/elements.dart';
+import 'package:mindcare/presentation/screens/emotions_register_screen.dart';
 import 'package:mindcare/presentation/screens/event_register_screen.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
 import 'package:mindcare/presentation/screens/mood_register_screen.dart';
@@ -50,7 +51,7 @@ class __UserScreenState extends State<_UserScreenState> {
   int _selectedIndex = 0;
   ElementService _elementService = ElementService();
   List<ElementData> _loadedElements = [];
-  String _selectedFilter = 'Todos';
+
 
   @override
   void initState() {
@@ -75,22 +76,6 @@ class __UserScreenState extends State<_UserScreenState> {
     });
   }
 
-  PopupMenuItem<String> _buildPopupMenuItem(String value, Color textColor) {
-    return PopupMenuItem<String>(
-      value: value,
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          value,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,24 +95,7 @@ class __UserScreenState extends State<_UserScreenState> {
                 children: [
                   const Text('Listado de tarjetas'),
                   const Spacer(),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.filter_list),
-                    onSelected: (newValue) {
-                      setState(() {
-                        _selectedFilter = newValue!;
-                      });
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return <PopupMenuEntry<String>>[
-                        _buildPopupMenuItem('Todos', Colors.blue),
-                        _buildPopupMenuItem(
-                            'Estados de ánimo', const Color(0xFFFFD700)),
-                        _buildPopupMenuItem(
-                            'Emociones', const Color(0xFFFF4500)),
-                        _buildPopupMenuItem('Eventos', const Color(0xFF4CAF50)),
-                      ];
-                    },
-                  ),
+                  
                 ],
               )
             : _selectedIndex == 1
@@ -313,6 +281,12 @@ class MainPanel extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) => const MoodRegisterScreen()));
+        }
+        else if (texto == 'Emoción') {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const EmotionRegisterScreen()));
         }
         // Cerrar el modal
         // Puedes agregar más lógica aquí según la opción seleccionada
