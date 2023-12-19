@@ -17,7 +17,7 @@ class MyCustomWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        height: 100,
+        height: 120,
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 241, 173, 171),
           border: Border.all(
@@ -30,8 +30,8 @@ class MyCustomWidget extends StatelessWidget {
           children: [
             // Contenedor para la imagen
             Container(
-              width: 80, // Ancho de la imagen
-              height: 80, // Alto de la imagen
+              width: 90, // Ancho de la imagen
+              height: 100, // Alto de la imagen
               margin: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -40,8 +40,7 @@ class MyCustomWidget extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-            ),
-            SizedBox(width: 10), // Espacio entre la imagen y el texto
+            ), // Espacio entre la imagen y el texto
 
             // Columna para los textos
             Column(
