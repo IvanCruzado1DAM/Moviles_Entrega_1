@@ -181,12 +181,6 @@ class _DataState extends State<Data> {
       ),
     );
   }
-
-  _saveRememberedData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('rememberedEmail', useremail);
-    prefs.setString('rememberedPassword', userpassword);
-  }
 }
 
 class BackGround extends StatelessWidget {
@@ -302,9 +296,7 @@ class Buttons extends StatelessWidget {
                     return LoginScreen();
                   }));
                 }
-              }).catchError((error) {
-                print('Error en el inicio de sesión: $error');
-              });
+              }).catchError((error) {});
             },
             style: const ButtonStyle(
               backgroundColor:

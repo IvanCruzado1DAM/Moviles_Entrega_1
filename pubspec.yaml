@@ -43,6 +43,7 @@ dependencies:
   leak_tracker: ^9.0.13
   flutter_slidable: ^3.0.1
   shared_preferences: ^2.2.2
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

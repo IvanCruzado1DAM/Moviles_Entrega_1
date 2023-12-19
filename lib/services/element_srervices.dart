@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,8 +9,9 @@ import 'package:mindcare/models/elements.dart';
 import 'package:mindcare/services/user_services.dart';
 
 class ElementService extends ChangeNotifier {
-  static String idUser = '';
+  static String id_user = '';
   static String type = '';
+  static String typeUser = '';
   final String baseURL = 'mindcare.allsites.es';
   final storage = const FlutterSecureStorage();
   final List<ElementData> elements = [];
@@ -16,37 +19,36 @@ class ElementService extends ChangeNotifier {
   bool isLoading = true;
 
   Future newElement(
-    int? emotionId,
-    int? moodId,
-    String? description,
-    String typeUser,
-    String idUser,
+    String id_user,
+    String type_user,
     String type,
-    String date,
-  ) async {
+    String date, {
+    int? mood_id,
+    int? emotion_id,
+    String? description,
+  }) async {
     final Map<String, dynamic> elementData = {
-      'id_user': idUser,
-      'type_user': typeUser,
+      'id_user': id_user,
+      'type_user': type_user,
       'type': type,
-      // aqui el tipo date (en un futuro) debemos hacerle un formatter y en register Screen usar este campo
       'date': date,
     };
-    if (moodId != null) {
-      elementData['mood_id'] = moodId;
-    }
-    if (moodId != null) {
-      elementData['emotion_id'] = emotionId;
+    if (mood_id != null) {
+      elementData['mood_id'] = mood_id;
     }
     if (description != null) {
       elementData['description'] = description;
     }
-    print(elementData);
+    if (emotion_id != null) {
+      elementData['emotion_id'] = emotion_id;
+    }
 
     final url = Uri.http(baseURL, '/public/api/newElement', {});
     String? authToken = await readToken();
 
     final response = await http.post(url,
         headers: {
+          'Content-type': 'application/json',
           'Accept': 'application/json',
           'Authorization': 'Bearer $authToken',
         },
@@ -55,10 +57,11 @@ class ElementService extends ChangeNotifier {
     final Map<String, dynamic> decoded = json.decode(response.body);
 
     if (decoded['success'] == true) {
-      ElementService.idUser = decoded['data']['id_user'].toString();
+      ElementService.id_user = decoded['data']['id_user'].toString();
       ElementService.type = decoded['data']['type'].toString();
       return 'success';
     } else {
+      print(decoded);
       return 'error';
     }
   }
@@ -67,46 +70,91 @@ class ElementService extends ChangeNotifier {
     return await storage.read(key: 'token') ?? '';
   }
 
+  Future<List<ElementData>> getMoods() async {
+    // int contContento = 0;
+    // int contEnfado = 0;
+    //final String userId = UserService.userId;
+    final String token = await readToken();
+
+    final Uri url = Uri.https(baseURL, '/public/api/moods');
+
+    isLoading = true;
+    notifyListeners();
+
+    final http.Response resp = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+    if (decodedData['success'] == true) {
+      for (var data in decodedData['data']) {
+        if (data['type'] == 'mood') {
+          ElementData elementData = ElementData(
+            id: data['id'],
+            type: data['type'] ?? '',
+            name: data['name'] ?? '',
+            description: data['description'] ?? '',
+            image: data['image'] ?? '',
+            date: data['date'] != null ? DateTime.parse(data['date']) : null,
+            createdAt: DateTime.parse(data['created_at']),
+          );
+          elements.add(elementData);
+          // if (data['description'] ==
+          //         'Estoy muy enfadadooooooooooooooooooooooo' &&
+          //     contEnfado == 0) {
+          //   elements.add(elementData);
+          //   contEnfado++;
+          // } else if (data['description'] == 'Estoy contento' &&
+          //     contContento == 0) {
+          //   elements.add(elementData);
+          //   contContento++;
+          // }
+        }
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    return elements;
+  }
+
   Future<List<ElementData>> getElements() async {
     final String userId = UserService.userId;
     final String token = await readToken();
     final Map<String, String> queryParams = {
       'id': userId,
     };
-    final Uri url = Uri.https(
-        baseURL, '/public/api/elements', queryParams);
+    final Uri url = Uri.https(baseURL, '/public/api/elements', queryParams);
 
-    
-      isLoading = true;
-      notifyListeners();
+    isLoading = true;
+    notifyListeners();
 
-      final http.Response resp = await http.get(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-        final Map<String, dynamic> decodedData = json.decode(resp.body);
-        if(decodedData['success']==true){
-          for (var data in decodedData['data']) {
-            ElementData elementData = ElementData(
-              id: data['id'],
-              type: data['type'] ?? '',
-              name: data['name'] ?? '',
-              description: data['description'] ?? '',
-              image: data['image'] ?? '',
-              date: data['date'] != null ? DateTime.parse(data['date']) : null,
-              createdAt: DateTime.parse(data['created_at']),
-            );
-            elements.add(elementData);
-          }
-        }  
-        isLoading = false;
-        notifyListeners();
-        print('aaaaaaaa');
-        print(elements);
-        return elements;  
+    final http.Response resp = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+    if (decodedData['success'] == true) {
+      for (var data in decodedData['data']) {
+        ElementData elementData = ElementData(
+          id: data['id'],
+          type: data['type'] ?? '',
+          name: data['name'] ?? '',
+          description: data['description'] ?? '',
+          image: data['image'] ?? '',
+          date: data['date'] != null ? DateTime.parse(data['date']) : null,
+          createdAt: DateTime.parse(data['created_at']),
+        );
+        elements.add(elementData);
+      }
     }
+    isLoading = false;
+    notifyListeners();
+    return elements;
   }
-
+}
