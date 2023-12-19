@@ -1,8 +1,8 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:mindcare/models/elements.dart';
+import 'package:mindcare/presentation/screens/event_register_screen.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
+import 'package:mindcare/presentation/screens/mood_register_screen.dart';
 import 'package:mindcare/services/element_srervices.dart';
 import 'package:mindcare/widgets/emotion_widget.dart';
 import 'package:mindcare/widgets/event_widget.dart';
@@ -37,7 +37,7 @@ class BackGround extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white,Colors.white],
+          colors: [Colors.white, Colors.white],
           begin: Alignment.centerRight,
           end: Alignment.centerLeft,
         ),
@@ -68,7 +68,7 @@ class __UserScreenState extends State<_UserScreenState> {
       print('Error al cargar elementos: $error');
     }
   }
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -96,7 +96,6 @@ class __UserScreenState extends State<_UserScreenState> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -107,52 +106,54 @@ class __UserScreenState extends State<_UserScreenState> {
           },
         ),
         title: _selectedIndex == 0
-          ? Row(
-              children: [
-                const Text('Listado de tarjetas'),
-                const Spacer(),                        
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.filter_list),
-                  onSelected: (newValue) {
-                    setState(() {
-                      _selectedFilter = newValue!;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return <PopupMenuEntry<String>>[
-                      _buildPopupMenuItem('Todos', Colors.blue),
-                      _buildPopupMenuItem('Estados de ánimo', const Color(0xFFFFD700)),
-                      _buildPopupMenuItem('Emociones', const Color(0xFFFF4500)),
-                      _buildPopupMenuItem('Eventos', const Color(0xFF4CAF50)),
-                    ];
-                  },
-                ),
-              ],
-            )
-          : _selectedIndex == 1
-              ? const Text('Explorar')
-              : const Text('Perfil'),
-          ),
+            ? Row(
+                children: [
+                  const Text('Listado de tarjetas'),
+                  const Spacer(),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.filter_list),
+                    onSelected: (newValue) {
+                      setState(() {
+                        _selectedFilter = newValue!;
+                      });
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return <PopupMenuEntry<String>>[
+                        _buildPopupMenuItem('Todos', Colors.blue),
+                        _buildPopupMenuItem(
+                            'Estados de ánimo', const Color(0xFFFFD700)),
+                        _buildPopupMenuItem(
+                            'Emociones', const Color(0xFFFF4500)),
+                        _buildPopupMenuItem('Eventos', const Color(0xFF4CAF50)),
+                      ];
+                    },
+                  ),
+                ],
+              )
+            : _selectedIndex == 1
+                ? const Text('Explorar')
+                : const Text('Perfil'),
+      ),
       body: Stack(
-      children: [
-        const BackGround(),
-        Center(
-          child: RefreshIndicator(
-          onRefresh: () async {
-            setState(() {
-              _loadedElements.clear(); 
-            });
-            await _loadElements();
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _loadedElements.length,
-                  itemBuilder: (context, index) {
-                    /*_loadedElements.sort((a, b) {
+        children: [
+          const BackGround(),
+          Center(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  _loadedElements.clear();
+                });
+                await _loadElements();
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _loadedElements.length,
+                      itemBuilder: (context, index) {
+                        /*_loadedElements.sort((a, b) {
                       if (a.type != 'event' && b.type != 'event') {                       
                         return b.createdAt.compareTo(a.createdAt);
                       } else if (a.type == 'event' && b.type != 'event') {                        
@@ -171,88 +172,89 @@ class __UserScreenState extends State<_UserScreenState> {
                       return 0; 
                     });*/
 
-
-                    if (_loadedElements[index].type == 'mood') {
-                      MoodWidget moodWidget = MoodWidget(
-                        text1: _loadedElements[index].description,
-                        text2: "Fecha: " + _loadedElements[index].createdAt.toString(),
-                        imageUrl: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          moodWidget,
-                        ],
-                      );
-                    } else if (_loadedElements[index].type == 'event') {
-                      EventWidget eventWidget = EventWidget(
-                        text1: _loadedElements[index].description,
-                        text2: "Fecha: " + _loadedElements[index].date.toString(),
-                        imageUrl: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          eventWidget,                        
-                        ],
-                      );
-                    } else if (_loadedElements[index].type == 'emotion') {
-                      EmotionWidget emotionWidget = EmotionWidget(
-                        texto1: _loadedElements[index].name,
-                        texto2: "Fecha: " + _loadedElements[index].createdAt.toString(),
-                        img1: _loadedElements[index].image,
-                      );
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          emotionWidget,
-                        ],
-                      );
-                    } else {
-                      return SizedBox(); // O algún otro widget por defecto
-                    }
-
-                  },
-                ),
+                        if (_loadedElements[index].type == 'mood') {
+                          MoodWidget moodWidget = MoodWidget(
+                            text1: _loadedElements[index].description,
+                            text2: "Fecha: " +
+                                _loadedElements[index].createdAt.toString(),
+                            imageUrl: _loadedElements[index].image,
+                          );
+                          return Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              moodWidget,
+                            ],
+                          );
+                        } else if (_loadedElements[index].type == 'event') {
+                          EventWidget eventWidget = EventWidget(
+                            text1: _loadedElements[index].description,
+                            text2: "Fecha: " +
+                                _loadedElements[index].date.toString(),
+                            imageUrl: _loadedElements[index].image,
+                          );
+                          return Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              eventWidget,
+                            ],
+                          );
+                        } else if (_loadedElements[index].type == 'emotion') {
+                          EmotionWidget emotionWidget = EmotionWidget(
+                            texto1: _loadedElements[index].name,
+                            texto2: "Fecha: " +
+                                _loadedElements[index].createdAt.toString(),
+                            img1: _loadedElements[index].image,
+                          );
+                          return Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              emotionWidget,
+                            ],
+                          );
+                        } else {
+                          return SizedBox(); // O algún otro widget por defecto
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-        )
+          const MainPanel(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-    backgroundColor: Color.fromARGB(255, 86, 189, 227), // Fondo negro
-    items: const <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(Icons.menu_book),
-        label: 'Diario',
+        backgroundColor: Color.fromARGB(255, 86, 189, 227), // Fondo negro
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'Diario',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Explorar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Perfil',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.red,
+        onTap: _onItemTapped,
+        selectedLabelStyle: const TextStyle(
+          fontFamily: 'Arial',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Arial',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.search),
-        label: 'Explorar',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.account_circle_rounded),
-        label: 'Perfil',
-      ),
-    ],
-    currentIndex: _selectedIndex,
-    selectedItemColor: Colors.amber[800], 
-    unselectedItemColor: Colors.red, 
-    onTap: _onItemTapped,
-    selectedLabelStyle: const TextStyle(
-      fontFamily: 'Arial',
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
-    unselectedLabelStyle: const TextStyle(
-    fontFamily: 'Arial',
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  ),
-  ),
-
     );
   }
 }
@@ -299,8 +301,20 @@ class MainPanel extends StatelessWidget {
     return ListTile(
       title: Text(texto),
       onTap: () {
-        // Lógica a ejecutar cuando se selecciona una opción
-        Navigator.pop(context); // Cerrar el modal
+        Navigator.pop(context);
+        if (texto == 'Eventos') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const EventRegisterScreen()),
+          );
+        } else if (texto == 'Estado de ánimo') {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const MoodRegisterScreen()));
+        }
+        // Cerrar el modal
         // Puedes agregar más lógica aquí según la opción seleccionada
       },
     );
