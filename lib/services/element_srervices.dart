@@ -34,6 +34,7 @@ class ElementService extends ChangeNotifier {
       'type': type,
       'date': date,
     };
+
     if (mood_id != null) {
       elementData['mood_id'] = mood_id;
     }
@@ -125,6 +126,7 @@ class ElementService extends ChangeNotifier {
     final String token = await readToken();
 
     final Uri url = Uri.https(baseURL, '/public/api/emotions');
+    print(url);
 
     isLoading = true;
     notifyListeners();
@@ -139,25 +141,17 @@ class ElementService extends ChangeNotifier {
     final Map<String, dynamic> decodedData = json.decode(resp.body);
     if (decodedData['success'] == true) {
       for (var data in decodedData['data']) {
-        if (data['type'] == 'emotion') {
           ElementData elementData = ElementData(
+            name: data['name'],
+            description: data['description'],  
             id: data['id'],
-            type: data['type'] ?? '',
-            name: data['name'] ?? '',
-            description: data['description'] ?? '',
-            image: data['image'] ?? '',
-            date: data['date'] != null ? DateTime.parse(data['date']) : null,
-            createdAt: DateTime.parse(data['created_at']),
+            image: data['image'] ?? '',       
           );
-          emotions.add(elementData);
-         
-        }
+          emotions.add(elementData);            
       }
     }
     isLoading = false;
     notifyListeners();
-    
-    print(emotions);
     return emotions;
   }
 

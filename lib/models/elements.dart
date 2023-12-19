@@ -2,24 +2,24 @@ import 'dart:convert';
 
 class ElementData {
   int id;
-  String type;
+  String? type;
   String name;
   int? userId;
   String description;
   String image;
   DateTime? date;
-  DateTime createdAt;
+  DateTime? createdAt;
   List<ElementData>? data;
 
   ElementData({
     required this.id,
-    required this.type,
+    this.type,
     required this.name,
     this.userId,
     required this.description,
     required this.image,
     this.date,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory ElementData.fromRawJson(String str) =>
@@ -46,6 +46,6 @@ class ElementData {
         "description": description,
         "image": image,
         "date": date?.toIso8601String(),
-        "created_at": createdAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
       };
 }

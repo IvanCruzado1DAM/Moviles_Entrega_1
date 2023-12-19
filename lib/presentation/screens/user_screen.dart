@@ -180,7 +180,7 @@ class __UserScreenState extends State<_UserScreenState> {
                             ],
                           );
                         } else {
-                          return SizedBox(); // O algún otro widget por defecto
+                          return SizedBox(); 
                         }
                       },
                     ),
@@ -193,7 +193,7 @@ class __UserScreenState extends State<_UserScreenState> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromARGB(255, 86, 189, 227), // Fondo negro
+        backgroundColor: Color.fromARGB(255, 86, 189, 227), 
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.menu_book),
@@ -239,7 +239,6 @@ class MainPanel extends StatelessWidget {
           right: 16.0,
           child: FloatingActionButton(
             onPressed: () {
-              // Mostrar las opciones al hacer clic en el botón
               _mostrarOpciones(context);
             },
             child: const Icon(Icons.add),
@@ -288,8 +287,6 @@ class MainPanel extends StatelessWidget {
               MaterialPageRoute(
                   builder: (context) => const EmotionRegisterScreen()));
         }
-        // Cerrar el modal
-        // Puedes agregar más lógica aquí según la opción seleccionada
       },
     );
   }

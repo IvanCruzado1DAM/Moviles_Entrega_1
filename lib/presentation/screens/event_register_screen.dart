@@ -54,22 +54,8 @@ class _EventRegisterScreenState extends State<EventRegisterScreen> {
             ),
             const SizedBox(height: 8.0),
             ElevatedButton(
-              onPressed: () async {
-                // Muestra un DatePicker al hacer clic en el botón
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2024),
-                );
-
-                if (pickedDate != null && pickedDate != _selectedDate) {
-                  setState(() {
-                    _selectedDate = pickedDate;
-                  });
-                }
-              },
-              child: const Text('Seleccionar Fecha'),
+              onPressed: () => _selectDateTime(context),
+              child: const Text('Seleccionar Fecha y Hora'),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
@@ -122,4 +108,39 @@ class _EventRegisterScreenState extends State<EventRegisterScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
+
+  DateTime selectedDateTime = DateTime.now();
+
+  Future<void> _selectDateTime(BuildContext context) async {
+    // Selección de fecha
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDateTime,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2024),
+    );
+
+    // Si la fecha se seleccionó, procede a seleccionar la hora
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+      );
+
+      // Si la hora también se seleccionó, actualiza el estado con la fecha y hora seleccionadas
+      if (pickedTime != null) {
+        setState(() {
+          selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          _selectedDate = selectedDateTime; // Actualiza _selectedDate si es necesario
+        });
+      }
+    }
+  }
+
 }
