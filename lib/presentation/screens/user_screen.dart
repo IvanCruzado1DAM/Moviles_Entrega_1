@@ -1,8 +1,11 @@
+// ignore_for_file: use_key_in_widget_constructors, duplicate_ignore
+
 import 'package:flutter/material.dart';
 import 'package:mindcare/models/elements.dart';
 import 'package:mindcare/presentation/screens/emotions_register_screen.dart';
 import 'package:mindcare/presentation/screens/event_register_screen.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
+import 'package:mindcare/presentation/screens/mind_fulness_screen.dart';
 import 'package:mindcare/presentation/screens/mood_register_screen.dart';
 import 'package:mindcare/services/element_srervices.dart';
 import 'package:mindcare/widgets/emotion_widget.dart';
@@ -49,9 +52,8 @@ class BackGround extends StatelessWidget {
 
 class __UserScreenState extends State<_UserScreenState> {
   int _selectedIndex = 0;
-  ElementService _elementService = ElementService();
+  final ElementService _elementService = ElementService();
   List<ElementData> _loadedElements = [];
-
 
   @override
   void initState() {
@@ -91,15 +93,14 @@ class __UserScreenState extends State<_UserScreenState> {
           },
         ),
         title: _selectedIndex == 0
-            ? Row(
+            ? const Row(
                 children: [
-                  const Text('Listado de tarjetas'),
-                  const Spacer(),
-                  
+                  Text('Listado de tarjetas'),
+                  Spacer(),
                 ],
               )
             : _selectedIndex == 1
-                ? const Text('Explorar')
+                ? const Text('MindFulness')
                 : const Text('Perfil'),
       ),
       body: Stack(
@@ -113,95 +114,33 @@ class __UserScreenState extends State<_UserScreenState> {
                 });
                 await _loadElements();
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: IndexedStack(
+                index: _selectedIndex,
                 children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _loadedElements.length,
-                      itemBuilder: (context, index) {
-                        /*_loadedElements.sort((a, b) {
-                      if (a.type != 'event' && b.type != 'event') {                       
-                        return b.createdAt.compareTo(a.createdAt);
-                      } else if (a.type == 'event' && b.type != 'event') {                        
-                        if (a.date != null && b.createdAt != null) {
-                          return b.createdAt.compareTo(a.date!);
-                        }
-                      } else if (a.type != 'event' && b.type == 'event') {
-                        if (b.date != null && a.createdAt != null) {
-                          return b.date!.compareTo(a.createdAt);
-                        }
-                      } else if (a.type == 'event' && b.type == 'event') {
-                        if (a.date != null && b.date != null) {
-                          return b.date!.compareTo(a.date!);
-                        }
-                      }
-                      return 0; 
-                    });*/
-
-                        if (_loadedElements[index].type == 'mood') {
-                          MoodWidget moodWidget = MoodWidget(
-                            text1: _loadedElements[index].description,
-                            text2: "Fecha: " +
-                                _loadedElements[index].createdAt.toString(),
-                            imageUrl: _loadedElements[index].image,
-                          );
-                          return Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              moodWidget,
-                            ],
-                          );
-                        } else if (_loadedElements[index].type == 'event') {
-                          EventWidget eventWidget = EventWidget(
-                            text1: _loadedElements[index].description,
-                            text2: "Fecha: " +
-                                _loadedElements[index].date.toString(),
-                            imageUrl: _loadedElements[index].image,
-                          );
-                          return Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              eventWidget,
-                            ],
-                          );
-                        } else if (_loadedElements[index].type == 'emotion') {
-                          EmotionWidget emotionWidget = EmotionWidget(
-                            texto1: _loadedElements[index].name,
-                            texto2: "Fecha: " +
-                                _loadedElements[index].createdAt.toString(),
-                            img1: _loadedElements[index].image,
-                          );
-                          return Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              emotionWidget,
-                            ],
-                          );
-                        } else {
-                          return SizedBox(); 
-                        }
-                      },
-                    ),
-                  ),
+                  // Widget para el índice 0 (Diario)
+                  _buildDiarioWidget(),
+                  // Widget para el índice 1 (Mindfulness)
+                  const MindFulnessPanel(),
+                  // Widget para el índice 2 (Perfil)
+                  const AccountPanel(),
                 ],
               ),
             ),
           ),
-          const MainPanel(),
+          if (_selectedIndex == 0) // Only show FloatingActionButton for Diario
+            const MainPanel(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromARGB(255, 86, 189, 227), 
+        backgroundColor: const Color.fromARGB(255, 86, 189, 227),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.menu_book),
             label: 'Diario',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Explorar',
+            icon: Icon(Icons.live_tv),
+            label: 'MindFulness',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_rounded),
@@ -225,9 +164,57 @@ class __UserScreenState extends State<_UserScreenState> {
       ),
     );
   }
+
+  Widget _buildDiarioWidget() {
+    return ListView.builder(
+      itemCount: _loadedElements.length,
+      itemBuilder: (context, index) {
+        if (_loadedElements[index].type == 'mood') {
+          MoodWidget moodWidget = MoodWidget(
+            text1: _loadedElements[index].description,
+            text2: "Fecha: ${_loadedElements[index].createdAt}",
+            imageUrl: _loadedElements[index].image,
+          );
+          return Column(
+            children: [
+              const SizedBox(height: 10),
+              moodWidget,
+            ],
+          );
+        } else if (_loadedElements[index].type == 'event') {
+          EventWidget eventWidget = EventWidget(
+            text1: _loadedElements[index].description,
+            text2: "Fecha: ${_loadedElements[index].date}",
+            imageUrl: _loadedElements[index].image,
+          );
+          return Column(
+            children: [
+              const SizedBox(height: 10),
+              eventWidget,
+            ],
+          );
+        } else if (_loadedElements[index].type == 'emotion') {
+          EmotionWidget emotionWidget = EmotionWidget(
+            texto1: _loadedElements[index].name,
+            texto2: "Fecha: ${_loadedElements[index].createdAt}",
+            img1: _loadedElements[index].image,
+          );
+          return Column(
+            children: [
+              const SizedBox(height: 10),
+              emotionWidget,
+            ],
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
 }
 
 class MainPanel extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const MainPanel({Key? key});
 
   @override
@@ -280,8 +267,7 @@ class MainPanel extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) => const MoodRegisterScreen()));
-        }
-        else if (texto == 'Emoción') {
+        } else if (texto == 'Emoción') {
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -292,15 +278,13 @@ class MainPanel extends StatelessWidget {
   }
 }
 
-class ExplorePanel extends StatelessWidget {
-  const ExplorePanel({Key? key});
+class MindFulnessPanel extends StatelessWidget {
+  const MindFulnessPanel({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text(
-        'Explorar',
-      ),
+      child: MindFulnessScreen(),
     );
   }
 }
