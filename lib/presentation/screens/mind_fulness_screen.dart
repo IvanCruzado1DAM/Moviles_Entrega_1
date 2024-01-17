@@ -15,7 +15,6 @@ class MindFulnessScreen extends StatelessWidget {
       body: FutureBuilder<List<ExerciseData>>(
         future: _exerciseService.getExercises(),
         builder: (context, snapshot) {
-          //print("Ejercicios: $snapshot");
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -32,31 +31,31 @@ class MindFulnessScreen extends StatelessWidget {
           } else {
             // Obtén todos los ejercicios
             List<ExerciseData> allExercises = snapshot.data!;
-
-            // Mapea todos los ejercicios a las URL de las imágenes
-            List<String> exerciseImageURLs = allExercises.map((exercise) {
-              // Si el tipo es "breathing", usa la imagen predeterminada
-              if (exercise.type == 'meditation') {
-                return 'lib/assets/images/breathing.png';
-              }
-              // Si la imagen no es nula, usa la URL del ejercicio
-              return exercise.image ?? '';
-            }).toList();
+            print('Y ESTOOO $allExercises');
+            // Filtrar los ejercicios tipo 'breathing'
+            List<ExerciseData> breathingExercises = allExercises
+                .where((exercise) => exercise.type == 'Relaxation')
+                .toList();
 
             // Ejemplo: Crear un CarouselSlider con las imágenes
+            print('A VEEE $breathingExercises');
             return CarouselSlider(
               options: CarouselOptions(
-                height: 400.0,
+                height: 250.0,
+                aspectRatio: 1.0,
                 enableInfiniteScroll: false,
                 viewportFraction: 0.8,
                 enlargeCenterPage: true,
               ),
-              items: exerciseImageURLs.map((url) {
+              items: breathingExercises.map((exercise) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Image.network(url, fit: BoxFit.cover),
+                      child: Image.network(
+                        exercise.image ?? 'lib/assets/images/breathing.png',
+                        fit: BoxFit.cover,
+                      ),
                     );
                   },
                 );
