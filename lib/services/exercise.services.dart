@@ -37,7 +37,7 @@ class ExerciseService extends ChangeNotifier {
     final Map<String, dynamic> decodedData = json.decode(resp.body);
     if (decodedData['success'] == true) {
       for (var data in decodedData['data']) {
-        //print('WHAT HAPPEN $data');
+        // print('WHAT HAPPEN $data');
         String imageUrl = data['image'] ??
             'https://cuentameuncuentoespecial.com/wp-content/uploads/2018/05/respiracion-abdominal-1-748x1024.png';
 

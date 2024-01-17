@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mindcare/models/exercises.dart';
-import 'package:mindcare/services/exercise.services.dart'; // Asegúrate de importar el servicio correcto
+import 'package:mindcare/services/exercise.services.dart';
 
 class MindFulnessScreen extends StatelessWidget {
   const MindFulnessScreen({Key? key});
@@ -11,21 +11,17 @@ class MindFulnessScreen extends StatelessWidget {
     final ExerciseService _exerciseService = ExerciseService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MindFulness Screen'),
-      ),
-      body: FutureBuilder<List<String>>(
-        // Utiliza FutureBuilder para manejar operaciones asincrónicas
-        future: _exerciseService
-            .getExerciseImageURLs(), // Cambia a la función correcta que obtiene las URLs de las imágenes
+      appBar: AppBar(),
+      body: FutureBuilder<List<ExerciseData>>(
+        future: _exerciseService.getExercises(),
         builder: (context, snapshot) {
-          print(_exerciseService.getExercises());
-
+          //print("Ejercicios: $snapshot");
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
+            print('Error al cargar ejercicios: ${snapshot.error}');
             return Center(
               child: Text('Error al cargar ejercicios: ${snapshot.error}'),
             );
@@ -34,8 +30,18 @@ class MindFulnessScreen extends StatelessWidget {
               child: Text('No hay ejercicios disponibles'),
             );
           } else {
-            // Aquí puedes usar la lista de URLs de las imágenes
-            List<String> exerciseImageURLs = snapshot.data!;
+            // Obtén todos los ejercicios
+            List<ExerciseData> allExercises = snapshot.data!;
+
+            // Mapea todos los ejercicios a las URL de las imágenes
+            List<String> exerciseImageURLs = allExercises.map((exercise) {
+              // Si el tipo es "breathing", usa la imagen predeterminada
+              if (exercise.type == 'meditation') {
+                return 'lib/assets/images/breathing.png';
+              }
+              // Si la imagen no es nula, usa la URL del ejercicio
+              return exercise.image ?? '';
+            }).toList();
 
             // Ejemplo: Crear un CarouselSlider con las imágenes
             return CarouselSlider(
