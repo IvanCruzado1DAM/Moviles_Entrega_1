@@ -11,7 +11,6 @@ class MindFulnessScreen extends StatelessWidget {
     final ExerciseService _exerciseService = ExerciseService();
 
     return Scaffold(
-      appBar: AppBar(),
       body: FutureBuilder<List<ExerciseData>>(
         future: _exerciseService.getExercises(),
         builder: (context, snapshot) {
@@ -31,39 +30,72 @@ class MindFulnessScreen extends StatelessWidget {
           } else {
             // Obtén todos los ejercicios
             List<ExerciseData> allExercises = snapshot.data!;
+            List<String> exerciseTypes = [];
+            for (var types in allExercises) {
+              if (!exerciseTypes.contains(types.type)) {
+                exerciseTypes.add(types.type);
+              }
+            }
             print('Y ESTOOO $allExercises');
-            // Filtrar los ejercicios tipo 'breathing'
-            List<ExerciseData> breathingExercises = allExercises
-                .where((exercise) => exercise.type == 'Relaxation')
-                .toList();
 
-            // Ejemplo: Crear un CarouselSlider con las imágenes
-            print('A VEEE $breathingExercises');
-            return CarouselSlider(
-              options: CarouselOptions(
-                height: 250.0,
-                aspectRatio: 1.0,
-                enableInfiniteScroll: false,
-                viewportFraction: 0.8,
-                enlargeCenterPage: true,
-              ),
-              items: breathingExercises.map((exercise) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Image.network(
-                        exercise.image ?? 'lib/assets/images/breathing.png',
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
+            const SizedBox();
+
+            return ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: exerciseTypes.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CarSlider(
+                    allListExercises: allExercises, type: exerciseTypes[index]);
+              },
             );
           }
         },
       ),
+    );
+  }
+}
+
+class CarSlider extends StatelessWidget {
+  CarSlider({
+    super.key,
+    required this.allListExercises,
+    required this.type,
+  }) : exercises =
+            allListExercises.where((element) => element.type == type).toList();
+
+  final List<ExerciseData> allListExercises;
+  final List<ExerciseData> exercises;
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(type),
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 200.0,
+            aspectRatio: 1.0,
+            enableInfiniteScroll: false,
+            viewportFraction: 0.8,
+            enlargeCenterPage: true,
+          ),
+          items: exercises.map((exercise) {
+            return Builder(
+              builder: (BuildContext context) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  // CAMBIAR ESTO A NETWORK PARA PONERLO DESDE LA BASE DE DATOS
+                  child: Image.asset(
+                    'lib/assets/images/breathing.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
