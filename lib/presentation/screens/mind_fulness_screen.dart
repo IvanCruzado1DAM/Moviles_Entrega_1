@@ -4,30 +4,30 @@ import 'package:mindcare/models/exercises.dart';
 import 'package:mindcare/services/exercise.services.dart';
 
 class MindFulnessScreen extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const MindFulnessScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
-    final ExerciseService _exerciseService = ExerciseService();
+    final ExerciseService exerciseService = ExerciseService();
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color.fromARGB(16, 239, 109, 8), Colors.blue.shade900],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+        body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color.fromARGB(16, 239, 109, 8), Colors.blue.shade900],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        child: FutureBuilder<List<ExerciseData>>(
-        future: _exerciseService.getExercises(),
+      ),
+      child: FutureBuilder<List<ExerciseData>>(
+        future: exerciseService.getExercises(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
-            print('Error al cargar ejercicios: ${snapshot.error}');
             return Center(
               child: Text('Error al cargar ejercicios: ${snapshot.error}'),
             );
@@ -36,7 +36,6 @@ class MindFulnessScreen extends StatelessWidget {
               child: Text('No hay ejercicios disponibles'),
             );
           } else {
-            // Obtén todos los ejercicios
             List<ExerciseData> allExercises = snapshot.data!;
             List<String> exerciseTypes = [];
             for (var types in allExercises) {
@@ -44,7 +43,6 @@ class MindFulnessScreen extends StatelessWidget {
                 exerciseTypes.add(types.type);
               }
             }
-           
 
             const SizedBox();
 
@@ -59,8 +57,7 @@ class MindFulnessScreen extends StatelessWidget {
           }
         },
       ),
-      )
-    );
+    ));
   }
 }
 
@@ -68,13 +65,14 @@ class CarSlider extends StatefulWidget {
   final List<ExerciseData> allListExercises;
   final String type;
 
-  CarSlider({
-    Key? key,
+  const CarSlider({
+    super.key,
     required this.allListExercises,
     required this.type,
-  }) : super(key: key);
+  });
 
-   @override
+  @override
+  // ignore: library_private_types_in_public_api
   _CarSliderState createState() => _CarSliderState();
 }
 
@@ -89,7 +87,7 @@ class _CarSliderState extends State<CarSlider> {
         .where((element) => element.type == widget.type)
         .toList();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -99,7 +97,7 @@ class _CarSliderState extends State<CarSlider> {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.blue,
-              borderRadius: BorderRadius.circular(40.0), 
+              borderRadius: BorderRadius.circular(40.0),
             ),
             padding: const EdgeInsets.all(12.0),
             child: Text(
@@ -112,55 +110,50 @@ class _CarSliderState extends State<CarSlider> {
             ),
           ),
         ),
-
-
         const SizedBox(height: 3.0),
-
         CarouselSlider(
-        options: CarouselOptions(
-          height: MediaQuery.of(context).size.height * 0.19, 
-          aspectRatio: 1.0,
-          enableInfiniteScroll: false,
-          viewportFraction: 0.8, 
-          enlargeCenterPage: true,
-          onPageChanged: (index, reason) {
+          options: CarouselOptions(
+            height: MediaQuery.of(context).size.height * 0.19,
+            aspectRatio: 1.0,
+            enableInfiniteScroll: false,
+            viewportFraction: 0.8,
+            enlargeCenterPage: true,
+            onPageChanged: (index, reason) {
               setState(() {
                 currentIndex = index;
               });
-          },
-        ),
-        items: exercises.map((exercise) {
-          return Builder(
-            builder: (BuildContext context) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                // Puedes cargar la imagen desde la base de datos aquí
-                child: Image.asset(
-                  'lib/assets/images/breathing.jpg',
-                  fit: BoxFit.cover,
-                ),
-              );
             },
-          );
-        }).toList(),
-        ),
-
-        // Indicadores de puntos
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: exercises.map((exercise) {
-                int index = exercises.indexOf(exercise);
+          ),
+          items: exercises.map((exercise) {
+            return Builder(
+              builder: (BuildContext context) {
                 return Container(
-                  width: 8.0,
-                  height: 8.0,
-                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: index == currentIndex ? Colors.blue : Colors.grey,
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Image.asset(
+                    'lib/assets/images/breathing.jpg',
+                    fit: BoxFit.cover,
                   ),
                 );
-              }).toList(),
-            ),
+              },
+            );
+          }).toList(),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: exercises.map((exercise) {
+            int index = exercises.indexOf(exercise);
+            return Container(
+              width: 8.0,
+              height: 8.0,
+              margin:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: index == currentIndex ? Colors.blue : Colors.grey,
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }

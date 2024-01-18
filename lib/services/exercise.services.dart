@@ -38,8 +38,7 @@ class ExerciseService extends ChangeNotifier {
     if (decodedData['success'] == true) {
       for (var data in decodedData['data']) {
         // print('WHAT HAPPEN $data');
-        String imageUrl = data['image'] ??
-            'https://cuentameuncuentoespecial.com/wp-content/uploads/2018/05/respiracion-abdominal-1-748x1024.png';
+        String imageUrl = data['image'] ?? '';
 
         ExerciseData elementData = ExerciseData(
           id: data['id'],
@@ -47,7 +46,7 @@ class ExerciseService extends ChangeNotifier {
           improvement: data['improvement'],
           type: data['type'],
           explanation: data['explanation'],
-          image: imageUrl,
+          image: data['image'],
           audio: data['audio'],
           video: data['video'],
         );
