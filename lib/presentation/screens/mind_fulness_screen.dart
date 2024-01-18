@@ -11,7 +11,15 @@ class MindFulnessScreen extends StatelessWidget {
     final ExerciseService _exerciseService = ExerciseService();
 
     return Scaffold(
-      body: FutureBuilder<List<ExerciseData>>(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(16, 239, 109, 8), Colors.blue.shade900],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: FutureBuilder<List<ExerciseData>>(
         future: _exerciseService.getExercises(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -36,7 +44,7 @@ class MindFulnessScreen extends StatelessWidget {
                 exerciseTypes.add(types.type);
               }
             }
-            print('Y ESTOOO $allExercises');
+           
 
             const SizedBox();
 
@@ -51,50 +59,108 @@ class MindFulnessScreen extends StatelessWidget {
           }
         },
       ),
+      )
     );
   }
 }
 
-class CarSlider extends StatelessWidget {
-  CarSlider({
-    super.key,
-    required this.allListExercises,
-    required this.type,
-  }) : exercises =
-            allListExercises.where((element) => element.type == type).toList();
-
+class CarSlider extends StatefulWidget {
   final List<ExerciseData> allListExercises;
-  final List<ExerciseData> exercises;
   final String type;
 
+  CarSlider({
+    Key? key,
+    required this.allListExercises,
+    required this.type,
+  }) : super(key: key);
+
+   @override
+  _CarSliderState createState() => _CarSliderState();
+}
+
+class _CarSliderState extends State<CarSlider> {
+  int currentIndex = 0;
+  late final List<ExerciseData> exercises;
+
+  @override
+  void initState() {
+    super.initState();
+    exercises = widget.allListExercises
+        .where((element) => element.type == widget.type)
+        .toList();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(type),
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 200.0,
-            aspectRatio: 1.0,
-            enableInfiniteScroll: false,
-            viewportFraction: 0.8,
-            enlargeCenterPage: true,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(40.0), 
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              widget.type,
+              style: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
-          items: exercises.map((exercise) {
-            return Builder(
-              builder: (BuildContext context) {
+        ),
+
+
+        const SizedBox(height: 3.0),
+
+        CarouselSlider(
+        options: CarouselOptions(
+          height: MediaQuery.of(context).size.height * 0.19, 
+          aspectRatio: 1.0,
+          enableInfiniteScroll: false,
+          viewportFraction: 0.8, 
+          enlargeCenterPage: true,
+          onPageChanged: (index, reason) {
+              setState(() {
+                currentIndex = index;
+              });
+          },
+        ),
+        items: exercises.map((exercise) {
+          return Builder(
+            builder: (BuildContext context) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                // Puedes cargar la imagen desde la base de datos aquí
+                child: Image.asset(
+                  'lib/assets/images/breathing.jpg',
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          );
+        }).toList(),
+        ),
+
+        // Indicadores de puntos
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: exercises.map((exercise) {
+                int index = exercises.indexOf(exercise);
                 return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  // CAMBIAR ESTO A NETWORK PARA PONERLO DESDE LA BASE DE DATOS
-                  child: Image.asset(
-                    'lib/assets/images/breathing.jpg',
-                    fit: BoxFit.cover,
+                  width: 8.0,
+                  height: 8.0,
+                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: index == currentIndex ? Colors.blue : Colors.grey,
                   ),
                 );
-              },
-            );
-          }).toList(),
-        ),
+              }).toList(),
+            ),
       ],
     );
   }
