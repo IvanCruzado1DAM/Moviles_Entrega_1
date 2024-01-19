@@ -7,9 +7,10 @@ class ExerciseData {
   String type;
   String explanation;
   // IVAN SI LEES ESTO AVISAME
-  String? image;
+  String image;
   String? audio;
   String? video;
+  int? made;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -19,9 +20,10 @@ class ExerciseData {
     required this.improvement,
     required this.type,
     required this.explanation,
-    this.image,
+    required this.image,
     this.audio,
     this.video,
+    this.made,
     this.createdAt,
     this.updatedAt,
   });
@@ -38,10 +40,13 @@ class ExerciseData {
         type: json["type"],
         explanation: json["explanation"],
         image: json["image"],
+        made: json["made"],
         createdAt: json["createdAt"] != null
             ? DateTime.parse(json["created_at"])
             : null,
-        updatedAt: DateTime.parse(json["update_at"]),
+        updatedAt: json["updatedAt"] != null
+            ? DateTime.parse(json["updated_at"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -57,6 +62,6 @@ class ExerciseData {
 
   @override
   String toString() {
-    return 'ExerciseData(id: $id, name: $name, improvement: $improvement, type: $type, explanation: $explanation, image: $image, audio: $audio, video: $video)';
+    return 'ExerciseData(id: $id, name: $name, improvement: $improvement, type: $type, explanation: $explanation, image: $image, audio: $audio, video: $video, made: $made)';
   }
 }

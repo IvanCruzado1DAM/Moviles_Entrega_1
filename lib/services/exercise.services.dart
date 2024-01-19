@@ -62,4 +62,20 @@ class ExerciseService extends ChangeNotifier {
   Future<List<String>> getExerciseImageURLs() async {
     return exerciseImageURLs;
   }
+
+
+  Future<ExerciseData> getExerciseById(int id) async {
+    final url = Uri.http(baseURL, '/public/api/exerciseById', {'id': '$id'});
+    String? token = await readToken();
+    final resp = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        "Authorization": "Bearer $token",
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+    ExerciseData exercise = ExerciseData.fromJson(decodedData['data']);
+    return exercise;
+  }
 }

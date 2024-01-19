@@ -79,6 +79,7 @@ class CarSlider extends StatefulWidget {
 class _CarSliderState extends State<CarSlider> {
   int currentIndex = 0;
   late final List<ExerciseData> exercises;
+  ExerciseService es=ExerciseService();
 
   @override
   void initState() {
@@ -92,18 +93,19 @@ class _CarSliderState extends State<CarSlider> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 5.0),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(6.0),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.blue,
-              borderRadius: BorderRadius.circular(40.0),
+              borderRadius: BorderRadius.circular(15.0),
             ),
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(10.0),
             child: Text(
               widget.type,
               style: const TextStyle(
-                fontSize: 20.0,
+                fontSize: 15.0,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -113,7 +115,7 @@ class _CarSliderState extends State<CarSlider> {
         const SizedBox(height: 3.0),
         CarouselSlider(
           options: CarouselOptions(
-            height: MediaQuery.of(context).size.height * 0.19,
+            height: MediaQuery.of(context).size.height * 0.16,
             aspectRatio: 1.0,
             enableInfiniteScroll: false,
             viewportFraction: 0.8,
@@ -125,16 +127,27 @@ class _CarSliderState extends State<CarSlider> {
             },
           ),
           items: exercises.map((exercise) {
-            return Builder(
+            return GestureDetector(
+            onTap: () async {
+              ExerciseData ejercicio = await es.getExerciseById(exercise.id);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetalleEjercicio(ejercicio: ejercicio),
+                ),
+              );
+            },
+            child: Builder(
               builder: (BuildContext context) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Image.asset(
-                    'lib/assets/images/breathing.jpg',
+                  child: Image.network(
+                    exercise.image, // Reemplaza con la propiedad real de la URL de la imagen en tu modelo de ejercicio
                     fit: BoxFit.cover,
                   ),
                 );
               },
+            )
             );
           }).toList(),
         ),
@@ -155,6 +168,24 @@ class _CarSliderState extends State<CarSlider> {
           }).toList(),
         ),
       ],
+    );
+  }
+}
+class DetalleEjercicio extends StatelessWidget {
+  final ExerciseData ejercicio;
+
+  DetalleEjercicio({required this.ejercicio});
+
+   @override
+  Widget build(BuildContext context) {
+    // Resto del código de tu pantalla DetalleEjercicio
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Detalles del Ejercicio'),
+      ),
+      body: Center(
+        child: Text('Nombre del ejercicio: ${ejercicio.name}'),
+      ),
     );
   }
 }
