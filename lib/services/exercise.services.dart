@@ -78,4 +78,64 @@ class ExerciseService extends ChangeNotifier {
     ExerciseData exercise = ExerciseData.fromJson(decodedData['data']);
     return exercise;
   }
+
+  Future newExerciseMade(int user_id, int exercise_id) async {
+    final url = Uri.http(baseURL, '/public/api/newExerciseMade', {'user_id': '$user_id', 'exercise_id': '$exercise_id'});
+    String? token = await readToken();
+    final resp = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        "Authorization": "Bearer $token",
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+    if (decodedData['success'] == true) {
+      //ExerciseService.userId = decodedData['data']['id_user'].toString();
+      //ExerciseService.type = decodedData['data']['type'].toString();
+      return 'success';
+    } else {
+      return 'error';
+    }
+  }
+
+  Future<List<ExerciseData>> exercisesByAlum(int id) async {
+    final String token = await readToken();
+
+    final Uri url = Uri.http(baseURL, '/public/api/exercisesByAlum', {'id': '$id'});
+
+    isLoading = true;
+    notifyListeners();
+
+    final http.Response resp = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+      if (decodedData['success'] == true) {
+      for (var data in decodedData['data']) {
+        if(data['id']==id){
+          ExerciseData exerciseData = ExerciseData(
+            id: data['id'],
+            name: data['name'],
+            improvement: data['improvement'],
+            type: data['type'],
+            explanation: data['explanation'],
+            image: data['image'],
+            audio: data['audio'],
+            video: data['video'],
+          );
+          exercises.add(exerciseData);
+        }          
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    return exercises;
+  }
+
+
 }

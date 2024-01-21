@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mindcare/models/exercises.dart';
 import 'package:mindcare/services/exercise.services.dart';
+import 'detalles_ejercicio.dart'; 
 
 class MindFulnessScreen extends StatelessWidget {
   // ignore: use_key_in_widget_constructors
@@ -12,52 +13,59 @@ class MindFulnessScreen extends StatelessWidget {
     final ExerciseService exerciseService = ExerciseService();
 
     return Scaffold(
-        body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color.fromARGB(16, 239, 109, 8), Colors.blue.shade900],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color.fromARGB(16, 239, 109, 8),
+              Colors.blue.shade900
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: FutureBuilder<List<ExerciseData>>(
+          future: exerciseService.getExercises(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child:
+                    Text('Error al cargar ejercicios: ${snapshot.error}'),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text('No hay ejercicios disponibles'),
+              );
+            } else {
+              List<ExerciseData> allExercises = snapshot.data!;
+              List<String> exerciseTypes = [];
+              for (var types in allExercises) {
+                if (!exerciseTypes.contains(types.type)) {
+                  exerciseTypes.add(types.type);
+                }
+              }
+
+              const SizedBox();
+
+              return ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: exerciseTypes.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return CarSlider(
+                    allListExercises: allExercises,
+                    type: exerciseTypes[index],
+                  );
+                },
+              );
+            }
+          },
         ),
       ),
-      child: FutureBuilder<List<ExerciseData>>(
-        future: exerciseService.getExercises(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error al cargar ejercicios: ${snapshot.error}'),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('No hay ejercicios disponibles'),
-            );
-          } else {
-            List<ExerciseData> allExercises = snapshot.data!;
-            List<String> exerciseTypes = [];
-            for (var types in allExercises) {
-              if (!exerciseTypes.contains(types.type)) {
-                exerciseTypes.add(types.type);
-              }
-            }
-
-            const SizedBox();
-
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: exerciseTypes.length,
-              itemBuilder: (BuildContext context, int index) {
-                return CarSlider(
-                    allListExercises: allExercises, type: exerciseTypes[index]);
-              },
-            );
-          }
-        },
-      ),
-    ));
+    );
   }
 }
 
@@ -77,9 +85,10 @@ class CarSlider extends StatefulWidget {
 }
 
 class _CarSliderState extends State<CarSlider> {
+  bool estrellaRellenada = false;
   int currentIndex = 0;
   late final List<ExerciseData> exercises;
-  ExerciseService es=ExerciseService();
+  ExerciseService es = ExerciseService();
 
   @override
   void initState() {
@@ -128,26 +137,68 @@ class _CarSliderState extends State<CarSlider> {
           ),
           items: exercises.map((exercise) {
             return GestureDetector(
-            onTap: () async {
-              ExerciseData ejercicio = await es.getExerciseById(exercise.id);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetalleEjercicio(ejercicio: ejercicio),
-                ),
-              );
-            },
-            child: Builder(
-              builder: (BuildContext context) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Image.network(
-                    exercise.image, // Reemplaza con la propiedad real de la URL de la imagen en tu modelo de ejercicio
-                    fit: BoxFit.cover,
+              onTap: () async {
+                ExerciseData ejercicio =
+                    await es.getExerciseById(exercise.id);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetalleEjercicio(ejercicio: ejercicio),
                   ),
                 );
               },
-            )
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Image.network(
+                      exercise.image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 8.0,
+                    left: 8.0,
+                    right: 8.0,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.8, // Ajusta el factor según sea necesario
+                      child: Text(
+                        exercise.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black,
+                              offset: Offset(1, 1),
+                              blurRadius: 1,
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8.0,
+                    right: 8.0,
+                    child: GestureDetector(
+                      onTap: () {
+                        // Maneja el evento de toque de la estrella para el ejercicio específico
+                        setState(() {
+                          estrellaRellenada = !estrellaRellenada;
+                        });
+                      },
+                      child: Icon(
+                        estrellaRellenada ? Icons.star : Icons.star_border,
+                        color: Colors.yellow,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList(),
         ),
@@ -168,24 +219,6 @@ class _CarSliderState extends State<CarSlider> {
           }).toList(),
         ),
       ],
-    );
-  }
-}
-class DetalleEjercicio extends StatelessWidget {
-  final ExerciseData ejercicio;
-
-  DetalleEjercicio({required this.ejercicio});
-
-   @override
-  Widget build(BuildContext context) {
-    // Resto del código de tu pantalla DetalleEjercicio
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Detalles del Ejercicio'),
-      ),
-      body: Center(
-        child: Text('Nombre del ejercicio: ${ejercicio.name}'),
-      ),
     );
   }
 }

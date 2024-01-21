@@ -3,10 +3,9 @@ import 'dart:convert';
 class ExerciseData {
   int id;
   String name;
-  String improvement;
+  String? improvement;
   String type;
   String explanation;
-  // IVAN SI LEES ESTO AVISAME
   String image;
   String? audio;
   String? video;
@@ -40,6 +39,8 @@ class ExerciseData {
         type: json["type"],
         explanation: json["explanation"],
         image: json["image"],
+        video: json["video"],
+        audio: json["audio"],
         made: json["made"],
         createdAt: json["createdAt"] != null
             ? DateTime.parse(json["created_at"])
@@ -56,6 +57,8 @@ class ExerciseData {
         "type": type,
         "explanation": explanation,
         "image": image,
+        "video": video,
+        "audio": audio,
         "created_at": createdAt?.toIso8601String(),
         "update_at": updatedAt?.toIso8601String(),
       };

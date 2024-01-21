@@ -39,11 +39,11 @@ class BackGround extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.white],
-          begin: Alignment.centerRight,
-          end: Alignment.centerLeft,
+          colors: [const Color.fromARGB(16, 239, 109, 8), Colors.blue.shade900],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
       ),
     );
@@ -83,26 +83,59 @@ class __UserScreenState extends State<_UserScreenState> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          },
+        leading: Row(
+          children: [
+            const SizedBox(
+              width: 10.0, 
+            ),
+            const Text(
+              'Exit',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Expanded( 
+              child: IconButton(
+                icon: const Icon(Icons.exit_to_app),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                iconSize: 24.0, 
+              ),
+            ),
+          ],
         ),
         title: _selectedIndex == 0
             ? const Row(
                 children: [
+                  SizedBox(
+                    width: 8.0, 
+                  ),
                   Text('Listado de tarjetas'),
                   Spacer(),
                 ],
               )
             : _selectedIndex == 1
-                ? const Text('MindFulness')
-                : const Text('Perfil'),
-      ),
+              ? const Row(
+                  children: [
+                    SizedBox(width: 8.0),
+                    Text('MindFulness'),
+                    Spacer(),
+                  ],
+                )
+              : const Row(
+                  children: [
+                    SizedBox(width: 8.0), 
+                    Text('Perfil'),
+                    Spacer(),
+                  ],
+                ),
+            ),
       body: Stack(
         children: [
           const BackGround(),

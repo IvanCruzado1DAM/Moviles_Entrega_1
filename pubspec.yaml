@@ -45,6 +45,10 @@ dependencies:
   shared_preferences: ^2.2.2
   intl: ^0.18.1
   carousel_slider: ^4.2.1
+  youtube_player_flutter: ^8.1.2
+  audio_video_progress_bar: ^2.0.1
+  just_audio: ^0.9.36
+ 
 
 dev_dependencies:
   flutter_test:
