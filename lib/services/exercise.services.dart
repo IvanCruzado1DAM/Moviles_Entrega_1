@@ -101,7 +101,6 @@ class ExerciseService extends ChangeNotifier {
 
   Future<List<ExerciseData>> exercisesByAlum(int id) async {
     final String token = await readToken();
-
     final Uri url = Uri.http(baseURL, '/public/api/exercisesByAlum', {'id': '$id'});
 
     isLoading = true;
@@ -117,7 +116,6 @@ class ExerciseService extends ChangeNotifier {
     final Map<String, dynamic> decodedData = json.decode(resp.body);
       if (decodedData['success'] == true) {
       for (var data in decodedData['data']) {
-        if(data['id']==id){
           ExerciseData exerciseData = ExerciseData(
             id: data['id'],
             name: data['name'],
@@ -128,8 +126,7 @@ class ExerciseService extends ChangeNotifier {
             audio: data['audio'],
             video: data['video'],
           );
-          exercises.add(exerciseData);
-        }          
+          exercises.add(exerciseData);               
       }
     }
     isLoading = false;

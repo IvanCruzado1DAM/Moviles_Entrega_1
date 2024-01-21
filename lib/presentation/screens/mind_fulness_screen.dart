@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mindcare/models/exercises.dart';
 import 'package:mindcare/services/exercise.services.dart';
-import 'detalles_ejercicio.dart'; 
+import 'detalles_ejercicio.dart';
 
 class MindFulnessScreen extends StatelessWidget {
   // ignore: use_key_in_widget_constructors
@@ -11,6 +11,7 @@ class MindFulnessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ExerciseService exerciseService = ExerciseService();
+    late Map<int, bool> exerciseStarStates;
 
     return Scaffold(
       body: Container(
@@ -33,8 +34,7 @@ class MindFulnessScreen extends StatelessWidget {
               );
             } else if (snapshot.hasError) {
               return Center(
-                child:
-                    Text('Error al cargar ejercicios: ${snapshot.error}'),
+                child: Text('Error al cargar ejercicios: ${snapshot.error}'),
               );
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(
@@ -84,11 +84,17 @@ class CarSlider extends StatefulWidget {
   _CarSliderState createState() => _CarSliderState();
 }
 
+bool estrellaRellenada = false;
+int currentIndex = 0;
+late final List<ExerciseData> exercises;
+ExerciseService es = ExerciseService();
+
 class _CarSliderState extends State<CarSlider> {
-  bool estrellaRellenada = false;
-  int currentIndex = 0;
   late final List<ExerciseData> exercises;
   ExerciseService es = ExerciseService();
+
+  // Mapa para almacenar los estados de la estrella para cada ejercicio
+  late Map<int, bool> exerciseStarStates;
 
   @override
   void initState() {
@@ -96,6 +102,9 @@ class _CarSliderState extends State<CarSlider> {
     exercises = widget.allListExercises
         .where((element) => element.type == widget.type)
         .toList();
+
+    // Inicializa el mapa con todos los estados de la estrella como vacíos
+    exerciseStarStates = {for (var exercise in exercises) exercise.id: false};
   }
 
   @override
@@ -137,13 +146,18 @@ class _CarSliderState extends State<CarSlider> {
           ),
           items: exercises.map((exercise) {
             return GestureDetector(
-              onTap: () async {
-                ExerciseData ejercicio =
-                    await es.getExerciseById(exercise.id);
+              onTap: () async {              
+                setState(() {
+                  exerciseStarStates[exercise.id] =
+                      !exerciseStarStates[exercise.id]!;
+                });
+              
+                ExerciseData ejercicio = await es.getExerciseById(exercise.id);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetalleEjercicio(ejercicio: ejercicio),
+                    builder: (context) =>
+                        DetalleEjercicio(ejercicio: ejercicio),
                   ),
                 );
               },
@@ -162,7 +176,7 @@ class _CarSliderState extends State<CarSlider> {
                     left: 8.0,
                     right: 8.0,
                     child: FractionallySizedBox(
-                      widthFactor: 0.8, // Ajusta el factor según sea necesario
+                      widthFactor: 0.8,
                       child: Text(
                         exercise.name,
                         style: const TextStyle(
@@ -184,17 +198,11 @@ class _CarSliderState extends State<CarSlider> {
                   Positioned(
                     top: 8.0,
                     right: 8.0,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Maneja el evento de toque de la estrella para el ejercicio específico
-                        setState(() {
-                          estrellaRellenada = !estrellaRellenada;
-                        });
-                      },
-                      child: Icon(
-                        estrellaRellenada ? Icons.star : Icons.star_border,
-                        color: Colors.yellow,
-                      ),
+                    child: Icon(
+                      exerciseStarStates[exercise.id]!
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: Colors.yellow,
                     ),
                   ),
                 ],
