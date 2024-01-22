@@ -23,7 +23,6 @@ class DetalleEjercicio extends StatefulWidget {
 class _DetalleEjercicioState extends State<DetalleEjercicio> {
   final _player = just_audio.AudioPlayer();
   final ExerciseService exerciseService = ExerciseService();
-  late bool isExerciseCompleted = true;
 
   @override
   void initState() {
@@ -195,42 +194,45 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                               const SizedBox(height: 6.0),
                               Center(
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    es.newExerciseMade(
-                                      int.parse(UserService.userId),
-                                      widget.ejercicio.id,
-                                    );
+                                  onPressed: widget.ejercicio.made == 1
+                                      ? null
+                                      : () async {
+                                          es.newExerciseMade(
+                                              int.parse(UserService.userId),
+                                              widget.ejercicio.id);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Ejercicio realizado correctamente'),
+                                            ),
+                                          );
+                                          await Future.delayed(
+                                              Duration(seconds: 3));
 
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Ejercicio realizado correctamente'),
-                                      ),
-                                    );
-
-                                    await Future.delayed(Duration(seconds: 3));
-
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            UserScreen(),
-                                      ),
-                                    );
-                                  },
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  UserScreen(),
+                                            ),
+                                          );
+                                        },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.grey,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20.0),
                                     ),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.check, color: Colors.white),
                                       const SizedBox(width: 8.0),
                                       Text(
-                                        'Hecho',
+                                        widget.ejercicio.made == 1
+                                            ? 'Ejercicio Realizado'
+                                            : 'Hecho',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.0,
@@ -239,7 +241,7 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                                     ],
                                   ),
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -284,42 +286,45 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                             const SizedBox(height: 6.0),
                             Center(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  es.newExerciseMade(
-                                    int.parse(UserService.userId),
-                                    widget.ejercicio.id,
-                                  );
+                                onPressed: widget.ejercicio.made == 1
+                                    ? null
+                                    : () async {
+                                        es.newExerciseMade(
+                                            int.parse(UserService.userId),
+                                            widget.ejercicio.id);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Ejercicio realizado correctamente'),
+                                          ),
+                                        );
+                                        await Future.delayed(
+                                            Duration(seconds: 3));
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Ejercicio realizado correctamente'),
-                                    ),
-                                  );
-
-                                  await Future.delayed(Duration(seconds: 3));
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          UserScreen(),
-                                    ),
-                                  );
-                                },
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                UserScreen(),
+                                          ),
+                                        );
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   primary: Colors.grey,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.check, color: Colors.white),
                                     const SizedBox(width: 8.0),
                                     Text(
-                                      'Hecho',
+                                      widget.ejercicio.made == 1
+                                          ? 'Ejercicio Realizado'
+                                          : 'Hecho',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.0,
@@ -362,14 +367,12 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                             const SizedBox(height: 6.0),
                             Center(
                               child: ElevatedButton(
-                                onPressed: isExerciseCompleted
-                                    ? null // Si el ejercicio ya está realizado, el botón estará desactivado.
+                                onPressed: widget.ejercicio.made == 1
+                                    ? null
                                     : () async {
                                         es.newExerciseMade(
-                                          int.parse(UserService.userId),
-                                          widget.ejercicio.id,
-                                        );
-
+                                            int.parse(UserService.userId),
+                                            widget.ejercicio.id);
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           const SnackBar(
@@ -377,12 +380,9 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                                                 'Ejercicio realizado correctamente'),
                                           ),
                                         );
-
                                         await Future.delayed(
                                             Duration(seconds: 3));
-                                        setState(() {
-                                          isExerciseCompleted = true;
-                                        });
+
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -403,7 +403,7 @@ class _DetalleEjercicioState extends State<DetalleEjercicio> {
                                     Icon(Icons.check, color: Colors.white),
                                     const SizedBox(width: 8.0),
                                     Text(
-                                      isExerciseCompleted
+                                      widget.ejercicio.made == 1
                                           ? 'Ejercicio Realizado'
                                           : 'Hecho',
                                       style: TextStyle(
