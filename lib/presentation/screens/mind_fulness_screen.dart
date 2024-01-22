@@ -3,15 +3,15 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mindcare/models/exercises.dart';
 import 'package:mindcare/services/exercise.services.dart';
 import 'detalles_ejercicio.dart';
+import 'package:mindcare/services/user_services.dart';
 
 class MindFulnessScreen extends StatelessWidget {
-  // ignore: use_key_in_widget_constructors
+
   const MindFulnessScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
     final ExerciseService exerciseService = ExerciseService();
-    late Map<int, bool> exerciseStarStates;
 
     return Scaffold(
       body: Container(
@@ -49,8 +49,6 @@ class MindFulnessScreen extends StatelessWidget {
                 }
               }
 
-              const SizedBox();
-
               return ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: exerciseTypes.length,
@@ -74,37 +72,62 @@ class CarSlider extends StatefulWidget {
   final String type;
 
   const CarSlider({
-    super.key,
+    Key? key,
     required this.allListExercises,
     required this.type,
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _CarSliderState createState() => _CarSliderState();
+  CarSliderState createState() => CarSliderState();
 }
 
-bool estrellaRellenada = false;
-int currentIndex = 0;
-late final List<ExerciseData> exercises;
-ExerciseService es = ExerciseService();
-
-class _CarSliderState extends State<CarSlider> {
-  late final List<ExerciseData> exercises;
+class CarSliderState extends State<CarSlider> {
+  late List<ExerciseData> exercises;
+  int currentIndex = 0;
   ExerciseService es = ExerciseService();
-
-  // Mapa para almacenar los estados de la estrella para cada ejercicio
   late Map<int, bool> exerciseStarStates;
+  bool isExerciseSaved = false;
+  List<int> userCompletedExerciseIds = [];
 
   @override
   void initState() {
     super.initState();
-    exercises = widget.allListExercises
-        .where((element) => element.type == widget.type)
-        .toList();
+    exercises = [];
+    exerciseStarStates = {};
 
-    // Inicializa el mapa con todos los estados de la estrella como vacíos
-    exerciseStarStates = {for (var exercise in exercises) exercise.id: false};
+    cargarDetallesEjercicio();
+  }
+
+  Future<void> cargarDetallesEjercicio() async {
+    int userId = int.parse(UserService.userId);
+
+   
+    final completedExercises = await es.exercisesByAlum(userId);
+    setState(() {
+      userCompletedExerciseIds = completedExercises.map((exercise) {
+        final id = exercise['id'];
+        if (id is String) {
+          return int.tryParse(id) ?? 0;
+        } else if (id is int) {
+          return id;
+        } else {
+          return 0;
+        }
+      }).toList();
+      print("IDs obtenidos del endpoint: $userCompletedExerciseIds");
+    });
+
+    final updatedExercises = await es.getExercises();
+    setState(() {
+      exercises = updatedExercises
+          .where((element) => element.type == widget.type)
+          .toList();
+
+      
+      exerciseStarStates = {
+        for (var exercise in exercises) exercise.id: false
+      };
+    });
   }
 
   @override
@@ -145,13 +168,15 @@ class _CarSliderState extends State<CarSlider> {
             },
           ),
           items: exercises.map((exercise) {
+            final bool isCompleted =
+                userCompletedExerciseIds.contains(exercise.id);
             return GestureDetector(
-              onTap: () async {              
+              onTap: () async {
                 setState(() {
                   exerciseStarStates[exercise.id] =
                       !exerciseStarStates[exercise.id]!;
                 });
-              
+
                 ExerciseData ejercicio = await es.getExerciseById(exercise.id);
                 Navigator.push(
                   context,
@@ -199,10 +224,19 @@ class _CarSliderState extends State<CarSlider> {
                     top: 8.0,
                     right: 8.0,
                     child: Icon(
-                      exerciseStarStates[exercise.id]!
+                      isCompleted
                           ? Icons.star
-                          : Icons.star_border,
-                      color: Colors.yellow,
+                          : Icons
+                              .star_border, 
+                      color: Colors.yellow[700],
+                      size: 38.0,
+                      shadows: const [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black45,
+                          offset: Offset(2.0, 2.0),
+                        ),
+                      ],
                     ),
                   ),
                 ],

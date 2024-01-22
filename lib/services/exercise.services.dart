@@ -63,7 +63,6 @@ class ExerciseService extends ChangeNotifier {
     return exerciseImageURLs;
   }
 
-
   Future<ExerciseData> getExerciseById(int id) async {
     final url = Uri.http(baseURL, '/public/api/exerciseById', {'id': '$id'});
     String? token = await readToken();
@@ -79,29 +78,37 @@ class ExerciseService extends ChangeNotifier {
     return exercise;
   }
 
-  Future newExerciseMade(int user_id, int exercise_id) async {
-    final url = Uri.http(baseURL, '/public/api/newExerciseMade', {'user_id': '$user_id', 'exercise_id': '$exercise_id'});
-    String? token = await readToken();
-    final resp = await http.post(
+  Future<Map<String, dynamic>> newExerciseMade(
+      int user_id, int exercise_id) async {
+    final Uri url = Uri.https(baseURL, '/public/api/newExerciseMade',
+        {'user_id': '$user_id', 'exercise_id': '$exercise_id'});
+    String token = await readToken();
+
+    final response = await http.post(
       url,
       headers: {
         'Accept': 'application/json',
-        "Authorization": "Bearer $token",
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'user_id': user_id.toString(),
+        'exercise_id': exercise_id.toString(),
       },
     );
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-    if (decodedData['success'] == true) {
-      //ExerciseService.userId = decodedData['data']['id_user'].toString();
-      //ExerciseService.type = decodedData['data']['type'].toString();
-      return 'success';
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return responseData;
     } else {
-      return 'error';
+      print('Error response status code: ${response.statusCode}');
+      throw Exception('${response.statusCode}');
     }
   }
 
-  Future<List<ExerciseData>> exercisesByAlum(int id) async {
+  Future<List<Map<String, dynamic>>> exercisesByAlum(int id) async {
     final String token = await readToken();
-    final Uri url = Uri.http(baseURL, '/public/api/exercisesByAlum', {'id': '$id'});
+    final Uri url =
+        Uri.http(baseURL, '/public/api/exercisesByAlum', {'id': '$id'});
 
     isLoading = true;
     notifyListeners();
@@ -113,26 +120,26 @@ class ExerciseService extends ChangeNotifier {
         'Authorization': 'Bearer $token',
       },
     );
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-      if (decodedData['success'] == true) {
-      for (var data in decodedData['data']) {
-          ExerciseData exerciseData = ExerciseData(
-            id: data['id'],
-            name: data['name'],
-            improvement: data['improvement'],
-            type: data['type'],
-            explanation: data['explanation'],
-            image: data['image'],
-            audio: data['audio'],
-            video: data['video'],
-          );
-          exercises.add(exerciseData);               
+    if (resp.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = jsonDecode(resp.body);
+
+      if (jsonResponse['success'] == true) {
+        final List<dynamic> data = jsonResponse['data'];
+        List<Map<String, dynamic>> exercises = [];
+
+        for (var exerciseData in data) {
+          exercises.add({
+            'id': exerciseData['id'],
+          });
+        }
+
+        return exercises;
+      } else {
+        throw Exception('Failed to retrieve exercises: ${jsonResponse['message']}');
       }
+    } else {
+      print('Error response status code: ${resp.statusCode}');
+      throw Exception('${resp.statusCode}');
     }
-    isLoading = false;
-    notifyListeners();
-    return exercises;
   }
-
-
 }
