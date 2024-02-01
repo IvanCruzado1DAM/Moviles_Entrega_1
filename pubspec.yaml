@@ -49,6 +49,7 @@ dependencies:
   audio_video_progress_bar: ^2.0.1
   just_audio: ^0.9.36
   go_router: ^12.0.1
+  flutter_mailer: ^2.1.2
  
 
 dev_dependencies:

@@ -260,6 +260,7 @@ class Buttons extends StatelessWidget {
                   mostrarAlertDialog(context);
                 } else {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    UserService.setCurrentUserEmail(_DataState.useremail);
                     if (result == 'success') {
                       if (UserService.userType == 'a') {
                         return const AdminScreen();

@@ -7,6 +7,7 @@ import 'package:mindcare/presentation/screens/event_register_screen.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
 import 'package:mindcare/presentation/screens/mind_fulness_screen.dart';
 import 'package:mindcare/presentation/screens/mood_register_screen.dart';
+import 'package:mindcare/presentation/screens/report_screen.dart';
 import 'package:mindcare/services/element_srervices.dart';
 import 'package:mindcare/widgets/emotion_widget.dart';
 import 'package:mindcare/widgets/event_widget.dart';
@@ -86,7 +87,7 @@ class __UserScreenState extends State<_UserScreenState> {
         leading: Row(
           children: [
             const SizedBox(
-              width: 10.0, 
+              width: 10.0,
             ),
             const Text(
               'Exit',
@@ -96,7 +97,7 @@ class __UserScreenState extends State<_UserScreenState> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Expanded( 
+            Expanded(
               child: IconButton(
                 icon: const Icon(Icons.exit_to_app),
                 onPressed: () {
@@ -105,7 +106,7 @@ class __UserScreenState extends State<_UserScreenState> {
                     MaterialPageRoute(builder: (context) => LoginScreen()),
                   );
                 },
-                iconSize: 24.0, 
+                iconSize: 24.0,
               ),
             ),
           ],
@@ -114,28 +115,28 @@ class __UserScreenState extends State<_UserScreenState> {
             ? const Row(
                 children: [
                   SizedBox(
-                    width: 8.0, 
+                    width: 8.0,
                   ),
                   Text('Listado de tarjetas'),
                   Spacer(),
                 ],
               )
             : _selectedIndex == 1
-              ? const Row(
-                  children: [
-                    SizedBox(width: 8.0),
-                    Text('MindFulness'),
-                    Spacer(),
-                  ],
-                )
-              : const Row(
-                  children: [
-                    SizedBox(width: 8.0), 
-                    Text('Perfil'),
-                    Spacer(),
-                  ],
-                ),
-            ),
+                ? const Row(
+                    children: [
+                      SizedBox(width: 8.0),
+                      Text('MindFulness'),
+                      Spacer(),
+                    ],
+                  )
+                : const Row(
+                    children: [
+                      SizedBox(width: 8.0),
+                      Text('Informes'),
+                      Spacer(),
+                    ],
+                  ),
+      ),
       body: Stack(
         children: [
           const BackGround(),
@@ -155,7 +156,7 @@ class __UserScreenState extends State<_UserScreenState> {
                   // Widget para el índice 1 (Mindfulness)
                   const MindFulnessPanel(),
                   // Widget para el índice 2 (Perfil)
-                  const AccountPanel(),
+                  const ReportPanel(),
                 ],
               ),
             ),
@@ -177,7 +178,7 @@ class __UserScreenState extends State<_UserScreenState> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_rounded),
-            label: 'Perfil',
+            label: 'Informes',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -322,15 +323,11 @@ class MindFulnessPanel extends StatelessWidget {
   }
 }
 
-class AccountPanel extends StatelessWidget {
-  const AccountPanel({Key? key});
+class ReportPanel extends StatelessWidget {
+  const ReportPanel({Key? key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Perfil',
-      ),
-    );
+    return const ReportScreen();
   }
 }

@@ -14,6 +14,7 @@ class UserService extends ChangeNotifier {
   bool isLoading = true;
   final List<UserData> users = [];
   String user = '';
+  static String currentUserEmail = "";
 
   Future register(
     String name,
@@ -167,7 +168,8 @@ class UserService extends ChangeNotifier {
       return 'success'; // Aquí se retorna 'success' si la desactivación fue exitosa.
     } else {
       print("Delete failed: ${decodeResp['message']}");
-      return decodeResp['message']; // Se retorna el mensaje si la desactivación falla.
+      return decodeResp[
+          'message']; // Se retorna el mensaje si la desactivación falla.
     }
   }
 
@@ -190,7 +192,8 @@ class UserService extends ChangeNotifier {
       return 'success'; // Aquí se retorna 'success' si la desactivación fue exitosa.
     } else {
       print("Delete failed: ${decodeResp['message']}");
-      return decodeResp['message']; // Se retorna el mensaje si la desactivación falla.
+      return decodeResp[
+          'message']; // Se retorna el mensaje si la desactivación falla.
     }
   }
 
@@ -242,5 +245,9 @@ class UserService extends ChangeNotifier {
       print('error');
       print(decoded.toString());
     }
+  }
+
+  static void setCurrentUserEmail(String email) {
+    currentUserEmail = email;
   }
 }
