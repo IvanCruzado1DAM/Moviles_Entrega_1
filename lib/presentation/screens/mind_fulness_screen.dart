@@ -6,7 +6,6 @@ import 'detalles_ejercicio.dart';
 import 'package:mindcare/services/user_services.dart';
 
 class MindFulnessScreen extends StatelessWidget {
-
   const MindFulnessScreen({Key? key});
 
   @override
@@ -101,7 +100,6 @@ class CarSliderState extends State<CarSlider> {
   Future<void> cargarDetallesEjercicio() async {
     int userId = int.parse(UserService.userId);
 
-   
     final completedExercises = await es.exercisesByAlum(userId);
     setState(() {
       userCompletedExerciseIds = completedExercises.map((exercise) {
@@ -114,7 +112,6 @@ class CarSliderState extends State<CarSlider> {
           return 0;
         }
       }).toList();
-      print("IDs obtenidos del endpoint: $userCompletedExerciseIds");
     });
 
     final updatedExercises = await es.getExercises();
@@ -123,10 +120,7 @@ class CarSliderState extends State<CarSlider> {
           .where((element) => element.type == widget.type)
           .toList();
 
-      
-      exerciseStarStates = {
-        for (var exercise in exercises) exercise.id: false
-      };
+      exerciseStarStates = {for (var exercise in exercises) exercise.id: false};
     });
   }
 
@@ -224,10 +218,7 @@ class CarSliderState extends State<CarSlider> {
                     top: 8.0,
                     right: 8.0,
                     child: Icon(
-                      isCompleted
-                          ? Icons.star
-                          : Icons
-                              .star_border, 
+                      isCompleted ? Icons.star : Icons.star_border,
                       color: Colors.yellow[700],
                       size: 38.0,
                       shadows: const [

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:intl/intl.dart';
 import 'package:mindcare/services/user_services.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -160,25 +163,54 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-  void _generateAndSavePDF() {
-    // Lógica para generar y guardar el PDF en el teléfono
-    // (puedes utilizar alguna librería para la generación de PDF, como pdf or pdf_flutter)
+  Future<void> _generateAndSavePDF() async {
+    String fileName = 'report.pdf';
+
+    // Obtiene el directorio de documentos de la aplicación
+    Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
+
+    // Crea una subcarpeta llamada 'pdfs' (puedes cambiar el nombre)
+    Directory pdfDirectory = Directory('${appDocumentsDirectory.path}/pdfs');
+    if (!pdfDirectory.existsSync()) {
+      pdfDirectory.createSync(recursive: true);
+    }
+
+    // Combina el directorio de documentos con la carpeta y el nombre del archivo
+    String pdfFilePath = '${pdfDirectory.path}/$fileName';
+
+    // Verifica la existencia del archivo
+    bool pdfExists = File(pdfFilePath).existsSync();
+
+    if (pdfExists) {
+      print('El archivo PDF existe en la ruta especificada.');
+      print(pdfFilePath);
+      // Aquí puedes proceder con la lógica para generar y guardar el PDF
+    } else {
+      print('El archivo PDF no existe. Creándolo manualmente...');
+      try {
+        File(pdfFilePath).createSync(recursive: true);
+        print('El archivo PDF fue creado exitosamente en: $pdfFilePath');
+
+        // IVAN, haz que este metodo devuelva return pdffilepath y lo metes como parametro en el _generateAndSendPDF
+      } catch (error) {
+        print('Error al crear el archivo: $error');
+      }
+    }
   }
 
-  void _generateAndSendPDF() async {
-    final MailOptions mailOptions = MailOptions(
-      body: 'Mindcare.',
-      subject: 'PDF de los informes',
-      recipients: [
-        userEmail,
-      ],
-      isHTML: true,
-      attachments: [
-        'lib/assets/report.pdf',
-      ],
-    );
-
+  Future<void> _generateAndSendPDF() async {
     try {
+      final MailOptions mailOptions = MailOptions(
+        body: 'Mindcare.',
+        subject: 'PDF de los informes',
+        recipients: [
+          userEmail,
+        ],
+        // el attachment es la url del telefono donde se descarga, hace falta porque lo pide
+        attachments: [],
+        isHTML: false,
+      );
+
       await FlutterMailer.send(mailOptions);
     } catch (error) {
       print('Error al enviar el correo: $error');
