@@ -1,10 +1,16 @@
-import 'dart:io';
-
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:intl/intl.dart';
 import 'package:mindcare/services/user_services.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:mindcare/models/elements.dart';
+import 'package:mindcare/services/element_srervices.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -20,6 +26,13 @@ class _ReportScreenState extends State<ReportScreen> {
   bool _includeMood = false;
   bool _includeEvent = false;
   final String userEmail = UserService.currentUserEmail;
+  late Future<Uint8List> archivoPdf;
+
+  @override
+  void initState() {
+    super.initState();
+    archivoPdf = _generateAndSavePDF();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +94,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           onChanged: (value) {
                             setState(() {
                               _includeEmotion = value!;
+                              _updatePdf();
                             });
                           },
                         ),
@@ -90,14 +104,17 @@ class _ReportScreenState extends State<ReportScreen> {
                           onChanged: (value) {
                             setState(() {
                               _includeMood = value!;
+                              _updatePdf();
                             });
                           },
                         ),
+                        const Text('Estado de ánimo'),
                         Checkbox(
                           value: _includeEvent,
                           onChanged: (value) {
                             setState(() {
                               _includeEvent = value!;
+                              _updatePdf();
                             });
                           },
                         ),
@@ -105,23 +122,38 @@ class _ReportScreenState extends State<ReportScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _generateAndSavePDF();
-                          },
-                          child: const Text('Generar PDF'),
-                        ),
-                        const SizedBox(width: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            _generateAndSendPDF();
-                          },
-                          child: const Text('Enviar PDF'),
-                        ),
-                      ],
+                    FutureBuilder<Uint8List>(
+                      future: archivoPdf,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          return ElevatedButton(
+                            onPressed: () {
+                              if (_includeEmotion ||
+                                  _includeMood ||
+                                  _includeEvent) {
+                                Printing.layoutPdf(onLayout: (format) async {
+                                  return archivoPdf; // Devuelve el PDF generado
+                                });
+                              } else {
+                                _showNoElementSelectedDialog();
+                              }
+                            },
+                            child: const Text('Generar PDF'),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _generateAndSendPDF();
+                      },
+                      child: const Text('Enviar PDF'),
                     ),
                   ],
                 ),
@@ -145,6 +177,7 @@ class _ReportScreenState extends State<ReportScreen> {
       setState(() {
         _startDate = picked;
       });
+      _updatePdf();
     }
   }
 
@@ -160,64 +193,193 @@ class _ReportScreenState extends State<ReportScreen> {
       setState(() {
         _endDate = picked;
       });
+      _updatePdf();
     }
   }
 
-  Future<void> _generateAndSavePDF() async {
-    String fileName = 'report.pdf';
+ Future<Uint8List> _generateAndSavePDF() async {
+  pw.Document pdf;
+  final ElementService _elementService = ElementService();
+  List<ElementData> elements = await _elementService.getElements();
+  pdf = pw.Document();
 
-    // Obtiene el directorio de documentos de la aplicación
-    Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
+  List<ElementData> filteredElements = elements.where((element) {
+    return _shouldIncludeElement(element);
+  }).toList();
 
-    // Crea una subcarpeta llamada 'pdfs' (puedes cambiar el nombre)
-    Directory pdfDirectory = Directory('${appDocumentsDirectory.path}/pdfs');
-    if (!pdfDirectory.existsSync()) {
-      pdfDirectory.createSync(recursive: true);
-    }
-
-    // Combina el directorio de documentos con la carpeta y el nombre del archivo
-    String pdfFilePath = '${pdfDirectory.path}/$fileName';
-
-    // Verifica la existencia del archivo
-    bool pdfExists = File(pdfFilePath).existsSync();
-
-    if (pdfExists) {
-      print('El archivo PDF existe en la ruta especificada.');
-      print(pdfFilePath);
-      // Aquí puedes proceder con la lógica para generar y guardar el PDF
-    } else {
-      print('El archivo PDF no existe. Creándolo manualmente...');
-      try {
-        File(pdfFilePath).createSync(recursive: true);
-        print('El archivo PDF fue creado exitosamente en: $pdfFilePath');
-
-        // IVAN, haz que este metodo devuelva return pdffilepath y lo metes como parametro en el _generateAndSendPDF
-      } catch (error) {
-        print('Error al crear el archivo: $error');
+  if (filteredElements.isEmpty) {
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Center(
+            child: pw.Container(
+            padding: pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.red,
+              borderRadius: pw.BorderRadius.circular(10),
+            ),
+            child: pw.Text(
+              'No se encontraron resultados.',
+              style: pw.TextStyle(
+                fontSize: 20,
+                color: PdfColors.white,
+              ),
+            ),
+            )
+          );
+        },
+      ),
+    );
+  } else {
+    String _getDateValue(ElementData element) {
+      if (element.type == 'event') {
+        return element.date != null
+            ? DateFormat('dd/MM/yyyy').format(element.date!)
+            : '';
+      } else {
+        return DateFormat('dd/MM/yyyy').format(element.createdAt!);
       }
     }
+
+    pw.Widget _buildTableCell(String text,
+        {pw.FontWeight? fontWeight, bool isHeader = false}) {
+      final color = isHeader ? PdfColors.blue : PdfColors.white;
+      final textColor = isHeader ? PdfColors.white : PdfColors.black;
+      return pw.Container(
+        padding: pw.EdgeInsets.all(8.0),
+        alignment: pw.Alignment.center,
+        color: color,
+        child: pw.Text(
+          text,
+          style: pw.TextStyle(fontWeight: fontWeight, color: textColor),
+        ),
+      );
+    }
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a5,
+        margin: pw.EdgeInsets.fromLTRB(20, 20, 20, 0),
+        build: (context) => [
+          pw.Padding(
+            padding: pw.EdgeInsets.symmetric(vertical: 20),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Container(
+                  alignment: pw.Alignment.center,
+                  child: pw.Text(
+                    'Informe Personal',
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                  border:
+                      pw.TableBorder.all(width: 1.0, color: PdfColors.black),
+                  children: <pw.TableRow>[
+                    pw.TableRow(
+                      children: <pw.Widget>[
+                        _buildTableCell('Tipo',
+                            fontWeight: pw.FontWeight.bold, isHeader: true),
+                        _buildTableCell('Nombre',
+                            fontWeight: pw.FontWeight.bold, isHeader: true),
+                        _buildTableCell('Descripción',
+                            fontWeight: pw.FontWeight.bold, isHeader: true),
+                        _buildTableCell('Fecha',
+                            fontWeight: pw.FontWeight.bold, isHeader: true),
+                      ],
+                    ),
+                    for (int i = 0; i < filteredElements.length; i++)
+                      pw.TableRow(
+                        children: <pw.Widget>[
+                          _buildTableCell(filteredElements[i].type!,
+                              fontWeight: pw.FontWeight.normal),
+                          _buildTableCell(filteredElements[i].name,
+                              fontWeight: pw.FontWeight.normal),
+                          _buildTableCell(filteredElements[i].description,
+                              fontWeight: pw.FontWeight.normal),
+                          _buildTableCell(_getDateValue(filteredElements[i]),
+                              fontWeight: pw.FontWeight.normal),
+                        ],
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return pdf.save();
+}
+
+  bool _shouldIncludeElement(ElementData element) {
+    if ((_includeEmotion && element.type == 'emotion') ||
+        (_includeMood && element.type == 'mood') ||
+        (_includeEvent && element.type == 'event')) {
+      return element.date != null &&
+          element.date!.isAfter(_startDate.subtract(Duration(days: 1))) &&
+          element.date!.isBefore(_endDate.add(Duration(days: 1)));
+    }
+    return false;
   }
 
   Future<void> _generateAndSendPDF() async {
-    try {
-      final MailOptions mailOptions = MailOptions(
-        body: 'Mindcare.',
-        subject: 'PDF de los informes',
-        recipients: [
-          userEmail,
-        ],
-        // el attachment es la url del telefono donde se descarga, hace falta porque lo pide
-        attachments: [],
-        isHTML: false,
-      );
+  try {
+    // Generar el PDF
+    final Uint8List pdfBytes = await _generateAndSavePDF();
 
-      await FlutterMailer.send(mailOptions);
-    } catch (error) {
-      print('Error al enviar el correo: $error');
-    }
+    // Guardar el PDF localmente en el directorio temporal
+    final Directory tempDir = await getTemporaryDirectory();
+    final String tempPath = tempDir.path;
+    final String pdfPath = '$tempPath/informe_personal.pdf';
+    final File pdfFile = File(pdfPath);
+    await pdfFile.writeAsBytes(pdfBytes);
+
+    // Crear las opciones de correo electrónico con el PDF adjunto
+    final MailOptions mailOptions = MailOptions(
+      body: 'Mindcare.',
+      subject: 'PDF de los informes',
+      recipients: [userEmail],
+      attachments: [pdfPath],
+      isHTML: false,
+    );
+
+    // Enviar el correo electrónico con el PDF adjunto
+    await FlutterMailer.send(mailOptions);
+  } catch (error) {
+    print('Error al enviar el correo: $error');
   }
+}
 
   String _formattedDate(DateTime date) {
     return DateFormat('dd/MM/yyyy').format(date);
+  }
+
+  void _updatePdf() {
+    setState(() {
+      archivoPdf = _generateAndSavePDF();
+    });
+  }
+
+  void _showNoElementSelectedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Selecciona al menos un tipo de elemento'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }
