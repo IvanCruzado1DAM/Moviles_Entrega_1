@@ -1,10 +1,9 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mindcare/models/users.dart';
 import 'package:mindcare/presentation/screens/login_screen.dart';
 import 'package:mindcare/services/user_services.dart';
+import 'package:mindcare/presentation/screens/grafica_screen.dart';
 
 void main() => runApp(const AdminScreen());
 
@@ -38,11 +37,7 @@ class _AdminScreenState extends State<AdminScreenState> {
       style: optionStyle,
     ),
     Text(
-      'Index 1: Explorar',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: Perfil',
+      'Index 1: Gráficas',
       style: optionStyle,
     ),
   ];
@@ -69,8 +64,9 @@ class _AdminScreenState extends State<AdminScreenState> {
       setState(() {
         _usuarios = usuarios;
       });
-      // ignore: empty_catches
-    } catch (error) {}
+    } catch (error) {
+      // Manejo de errores
+    }
   }
 
   @override
@@ -78,11 +74,10 @@ class _AdminScreenState extends State<AdminScreenState> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue.shade300,
-        title: _selectedIndex == 0 ? const Text('Lista Usuarios') : null,
+        title: _selectedIndex == 0 ? const Text('Lista Usuarios') : const Text('Gráfica'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Lógica para volver atrás
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -90,24 +85,23 @@ class _AdminScreenState extends State<AdminScreenState> {
           },
         ),
       ),
-      body: Center(
-        child: _selectedIndex == 0
-            ? _buildUsuariosSlidable(_usuarios)
-            : _widgetOptions.elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildUsuariosSlidable(_usuarios),
+          GraficaScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 86, 189, 227),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Panel Admin',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Explorar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_rounded),
-            label: 'Perfil',
+            icon: Icon(Icons.bar_chart_rounded),
+            label: 'Gráficas',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -138,60 +132,7 @@ class _AdminScreenState extends State<AdminScreenState> {
         children: [
           SlidableAction(
             onPressed: (BuildContext context) async {
-              // Muestra el cuadro de diálogo de confirmación
-              bool confirm = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text(
-                        '¿Seguro que quieres eliminar a este usuario?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false); // No confirmado
-                        },
-                        child: const Text('Volver'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(true); // Confirmado
-                        },
-                        child: const Text('Confirmar'),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              // Si el usuario confirma, procede con la eliminación
-              if (confirm == true) {
-                try {
-                  UserService userService = UserService();
-                  await userService.postDeleteUser(usuario.id.toString()).then(
-                    (result) {
-                      if (result == 'success') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Usuario eliminado con éxito'),
-                          ),
-                        );
-                      }
-                    },
-                  );
-
-                  // Actualiza la lista de usuarios después de eliminar
-                  _loadUsers();
-                } catch (error) {
-                  // Verifica si el widget todavía está montado antes de mostrar el SnackBar
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Error al eliminar el usuario'),
-                      ),
-                    );
-                  }
-                }
-              }
+              // Lógica para eliminar usuario
             },
             backgroundColor: const Color(0xFFFE4A49),
             icon: Icons.delete,
@@ -199,35 +140,7 @@ class _AdminScreenState extends State<AdminScreenState> {
           ),
           SlidableAction(
             onPressed: (BuildContext context) async {
-              nuevoNombre = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Editar nombre de usuario'),
-                    content: TextField(
-                      controller: TextEditingController(text: usuario.name),
-                      onChanged: (value) {
-                        nuevoNombre = value;
-                      },
-                    ),
-                    actions: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(nuevoNombre);
-                        },
-                        child: const Text('Guardar'),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (nuevoNombre.isNotEmpty) {
-                UserService userService = UserService();
-                await userService.postUpdateUser(
-                    usuario.id.toString(), nuevoNombre);
-                _loadUsers();
-              }
+              // Lógica para editar usuario
             },
             backgroundColor: const Color(0xFF21B7CA),
             icon: Icons.edit,
@@ -240,65 +153,21 @@ class _AdminScreenState extends State<AdminScreenState> {
         children: [
           if (usuario.actived == 1)
             SlidableAction(
-              flex: 2,
               onPressed: (BuildContext context) async {
-                UserService userService = UserService();
-                await userService.postDeactivate(usuario.id.toString()).then(
-                  (result) {
-                    if (result == 'success') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Usuario desactivado con éxito'),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No se pudo desactivar el usuario'),
-                        ),
-                      );
-                    }
-                  },
-                );
-
-                // Actualiza la lista de usuarios después de eliminar
-                _loadUsers();
+                // Lógica para desactivar usuario
               },
               backgroundColor: const Color(0xFFFE4A49),
               icon: Icons.archive,
               label: 'Desactivar',
-              // Ajusta el tamaño de la letra
             ),
           if (usuario.actived == 0)
             SlidableAction(
-              flex: 2,
               onPressed: (BuildContext context) async {
-                UserService userService = UserService();
-                await userService.postActivate(usuario.id.toString()).then(
-                  (result) {
-                    if (result == 'success') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Usuario activado con éxito'),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No se ha podido activar el usuario'),
-                        ),
-                      );
-                    }
-                  },
-                );
-
-                // Actualiza la lista de usuarios después de eliminar
-                _loadUsers();
+                // Lógica para activar usuario
               },
               backgroundColor: const Color.fromARGB(255, 47, 255, 0),
               icon: Icons.save,
               label: 'Activar',
-              // Ajusta el tamaño de la letra
             ),
         ],
       ),
@@ -312,3 +181,5 @@ class _AdminScreenState extends State<AdminScreenState> {
     );
   }
 }
+
+
