@@ -177,4 +177,88 @@ class ElementService extends ChangeNotifier {
     notifyListeners();
     return elements;
   }
+
+
+  Future<List<ElementData>> getElementsByID(String userId) async { // Agrega un parámetro para el ID del usuario
+  final String token = await readToken();
+  final Map<String, String> queryParams = {
+    'id': userId,
+  };
+  final Uri url = Uri.https(baseURL, '/public/api/elements', queryParams);
+
+  isLoading = true;
+  notifyListeners();
+
+  final http.Response resp = await http.get(
+    url,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  final Map<String, dynamic> decodedData = json.decode(resp.body);
+  List<ElementData> elements = []; // Inicializa la lista de elementos aquí
+  if (decodedData['success'] == true) {
+    for (var data in decodedData['data']) {
+      ElementData elementData = ElementData(
+        id: data['id'],
+        type: data['type'] ?? '',
+        name: data['name'] ?? '',
+        description: data['description'] ?? '',
+        image: data['image'] ?? '',
+        date: data['date'] != null ? DateTime.parse(data['date']) : null,
+        createdAt: DateTime.parse(data['created_at']),
+      );
+      elements.add(elementData);
+    }
+  }
+  isLoading = false;
+  notifyListeners();
+  return elements;
+}
+
+Future<List<ElementData>> getElementsByIDAndMonth(String userId, DateTime startDate, DateTime endDate) async {
+  final String token = await readToken();
+  final Map<String, String> queryParams = {
+    'id': userId,
+  };
+  final Uri url = Uri.https(baseURL, '/public/api/elements', queryParams);
+
+  isLoading = true;
+  notifyListeners();
+
+  final http.Response resp = await http.get(
+    url,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  final Map<String, dynamic> decodedData = json.decode(resp.body);
+  List<ElementData> elements = []; // Inicializa la lista de elementos aquí
+  if (decodedData['success'] == true) {
+    for (var data in decodedData['data']) {
+      // Filtrar por rango de fechas
+      DateTime elementDate = DateTime.parse(data['date']);
+      if (elementDate.isAfter(startDate.subtract(Duration(days: 1))) &&
+          elementDate.isBefore(endDate.add(Duration(days: 1)))) {
+        ElementData elementData = ElementData(
+          id: data['id'],
+          type: data['type'] ?? '',
+          name: data['name'] ?? '',
+          description: data['description'] ?? '',
+          image: data['image'] ?? '',
+          date: elementDate,
+          createdAt: DateTime.parse(data['created_at']),
+        );
+        elements.add(elementData);
+      }
+    }
+  }
+  isLoading = false;
+  notifyListeners();
+  return elements;
+}
+
+
 }
