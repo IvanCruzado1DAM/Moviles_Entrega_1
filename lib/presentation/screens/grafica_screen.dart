@@ -28,14 +28,14 @@ class _GraficaScreenState extends State<GraficaScreen> {
         _usuarios = users;
       });
     } catch (error) {
-      // Manejo de errores
+    
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // Aplicando desplazamiento vertical a toda la pantalla
+      body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 25.0, 16.0, 0.0),
@@ -74,8 +74,8 @@ class _GraficaScreenState extends State<GraficaScreen> {
                 if (_usuarios.isEmpty)
                   const Center(
                     child: CircularProgressIndicator(),
-                  ), // Indicador de carga si no hay usuarios cargados
-                const SizedBox(height: 10.0), // Espacio de separación
+                  ), 
+                const SizedBox(height: 10.0), 
                 const Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -113,8 +113,8 @@ class _GraficaScreenState extends State<GraficaScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10.0), // Espacio de separación
-                _buildCharts(), // Widget para construir las gráficas
+                const SizedBox(height: 10.0), 
+                _buildCharts(),
               ],
             ),
           ),
@@ -148,7 +148,7 @@ class _GraficaScreenState extends State<GraficaScreen> {
           ),
           SizedBox(height: 8.0),
           SizedBox(
-            height: 200, // Altura fija para el contenedor de la gráfica
+            height: 200, 
             child: FutureBuilder<List<ElementData>>(
               future: ElementService().getElementsByIDAndMonth(
                   _selectedUser?.id.toString() ?? '', monthDate, endDate),
@@ -180,10 +180,10 @@ class _GraficaScreenState extends State<GraficaScreen> {
   }
 
  Widget _buildColumnChart(Map<String, int> typeCountMap) {
-  final double columnWidth = 40.0; // Ancho fijo para cada columna
+  final double columnWidth = 40.0; 
   final int maxCount = typeCountMap.values.isNotEmpty ? typeCountMap.values.reduce((value, element) => value > element ? value : element) : 0;
   return SizedBox(
-    width: 320, // Ancho fijo para el contenedor de la gráfica
+    width: 320, 
     child: CustomPaint(
       size: Size((columnWidth + 10.0) * typeCountMap.length, 200),
       painter: ColumnChartPainter(
@@ -206,10 +206,10 @@ class ColumnChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double startX = (size.width - (columnWidth + 10.0) * typeCountMap.length + 10.0) / 2; // Calcular la posición inicial para centrar las columnas
+    double startX = (size.width - (columnWidth + 10.0) * typeCountMap.length + 10.0) / 2; 
     typeCountMap.forEach((type, count) {
       final Paint paint = Paint()..color = _getColorByType(type);
-      final double normalizedHeight = (count / maxCount) * (size.height - 20); // Normalizar la altura de la columna dentro del espacio fijo del contenedor
+      final double normalizedHeight = (count / maxCount) * (size.height - 20);  
       canvas.drawRect(
         Rect.fromLTWH(startX, size.height - normalizedHeight, columnWidth, normalizedHeight),
         paint,
@@ -217,15 +217,15 @@ class ColumnChartPainter extends CustomPainter {
 
       final TextPainter textPainter = TextPainter(
       text: TextSpan(
-        text: count.toString(), // Mostrar el número de cada tipo
+        text: count.toString(), 
         style: TextStyle(color: Colors.black),
       ),
-      textDirection: ui.TextDirection.ltr, // Establecer la dirección del texto
+      textDirection: ui.TextDirection.ltr, 
     );
 
       textPainter.layout();
-      final double textX = startX + columnWidth / 2 - textPainter.width / 2; // Calcular la posición X del número
-      final double textY = size.height - normalizedHeight - textPainter.height - 2; // Calcular la posición Y del número
+      final double textX = startX + columnWidth / 2 - textPainter.width / 2; 
+      final double textY = size.height - normalizedHeight - textPainter.height - 2; 
       textPainter.paint(canvas, Offset(textX, textY));
 
       startX += columnWidth + 10.0;
